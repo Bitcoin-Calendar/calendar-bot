@@ -14,7 +14,7 @@ import (
 )
 
 const (
-    privateKeyHex = "86326c97aace96adc016e663ff7322c8b88291539cc15c6bfecca9fcd7216f16"
+    privateKeyHex = "YOUR_NOSTR_PRIVATE_KEY_HERE"
     csvFilePath   = "events.csv"
 )
 
