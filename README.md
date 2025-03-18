@@ -47,7 +47,7 @@ The bot uses structured logging in JSON format, which allows for better parsing 
 
 ## License
 
-This project is licensed under the MIT License. You are free to use, copy, modify, and distribute this software as long as you include the original copyright notice and a copy of the license in any substantial portions of the software.
+See the [LICENSE](/calendar-bot/LICENSE.txt) file for details.
 
 ## Contributing
 
