@@ -47,7 +47,7 @@ The bot uses structured logging in JSON format, which allows for better parsing 
 
 ## License
 
-See the [LICENSE](/nostr-calendar-bot/blob/main/LICENSE.txt) file for details.
+See the [LICENSE](https://github.com/bitcoin21ideas/nostr-calendar-bot/blob/main/LICENSE.txt) file for details.
 
 ## Contributing
 
