@@ -1,0 +1,21 @@
+# Environment files
+.env
+
+# Log files
+**/*.log
+*.log
+nostr_bot.log
+
+# Compiled executables
+nostr_bot
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE configuration
+.vscode/
+.idea/
+
+# Temporary files
+tmp/
