@@ -1,4 +1,4 @@
-[![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-purple)](https://zapmeacoffee.vercel.app/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
+[![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-purple)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
 
 
 # Bitcoin Calendar Bot
