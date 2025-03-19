@@ -14,29 +14,35 @@ import (
     "github.com/joho/godotenv"
 )
 
-const (
-    csvFilePath   = "events.csv"
-)
+func main() {
+    if len(os.Args) < 3 {
+        log.Fatal().Msg("Usage: nostr_bot <csv_file_path> <env_var_for_private_key>")
+    }
 
-func init() {
+    csvFilePath := os.Args[1]
+    envVarForPrivateKey := os.Args[2]
+
     err := godotenv.Load()
     if err != nil {
         log.Fatal().Msg("Error loading env file")
     }
-}
 
-func main() {
-    // Set up log rotation
+    privateKey := os.Getenv(envVarForPrivateKey)
+    if privateKey == "" {
+        log.Fatal().Msgf("Environment variable %s is not set", envVarForPrivateKey)
+    }
+
+    // Set up log rotation for a single log file
     logFile := &lumberjack.Logger{
-        Filename:   "nostr_bot.log",
+        Filename:   "nostr_bot.log", // Single log file for all activities
         MaxSize:    10, // megabytes
         MaxBackups: 3,
         MaxAge:     28, // days
         Compress:   true,
     }
 
-    // Configure zerolog to log in JSON format
-    zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+    // Configure zerolog to log in human-readable time format
+    zerolog.TimeFieldFormat = time.RFC3339
     log.Logger = zerolog.New(logFile).With().
         Timestamp().
         Str("service", "nostr-calendar-bot").
@@ -57,12 +63,34 @@ func main() {
         Str("date", today).
         Msg("Starting bot execution")
 
+    processCSV(csvFilePath, privateKey, today)
+}
+
+func getLogFileName(filePath string) string {
+    if strings.Contains(filePath, "en") {
+        return "nostr_bot_en.log"
+    } else if strings.Contains(filePath, "ru") {
+        return "nostr_bot_ru.log"
+    }
+    return "nostr_bot_unknown.log"
+}
+
+func getLanguageFromCSV(filePath string) string {
+    if strings.Contains(filePath, "en") {
+        return "English"
+    } else if strings.Contains(filePath, "ru") {
+        return "Russian"
+    }
+    return "Unknown"
+}
+
+func processCSV(filePath string, privateKey string, today string) {
     // Open the CSV file
-    file, err := os.Open(csvFilePath)
+    file, err := os.Open(filePath)
     if err != nil {
         log.Fatal().
             Err(err).
-            Str("file", csvFilePath).
+            Str("file", filePath).
             Msg("Error opening CSV file")
     }
     defer file.Close()
@@ -73,7 +101,7 @@ func main() {
     if err != nil {
         log.Fatal().
             Err(err).
-            Str("file", csvFilePath).
+            Str("file", filePath).
             Msg("Error reading CSV file")
     }
 
@@ -137,10 +165,6 @@ func main() {
             }
 
             // Sign the event
-            privateKey := os.Getenv("NOSTR_PRIVATE_KEY")
-            if privateKey == "" {
-                log.Fatal().Msg("NOSTR_PRIVATE_KEY is not set")
-            }
             if err := nostrEvent.Sign(privateKey); err != nil {
                 eventLog.Error().
                     Err(err).
