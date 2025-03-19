@@ -1,7 +1,10 @@
 [![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-purple)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
 
-
 # Bitcoin Calendar Bot
+
+### Archiving and relaying every Bitcoin milestone 
+
+![bitcal-logo-wide](https://i.nostr.build/Z3h9vApqgLXXgvdH.jpg)
 
 ## Overview
 
@@ -125,7 +128,7 @@ Contributions are welcome! Please feel free to submit a pull request or open an 
 
 For any questions or feedback, please contact [Tony](https://njump.me/npub10awzknjg5r5lajnr53438ndcyjylgqsrnrtq5grs495v42qc6awsj45ys7) via Nostr.
 
-## Support Bitcoin Calendar
+## Support 
 
 Support Bitcoin calendar via [Coinos](https://coinos.io/)
 - Биткоин календарь RU ⚡️ `bitcalru@coinos.io` 🔗 [Страничка на Coinos](https://coinos.io/bitcalru).
