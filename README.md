@@ -4,7 +4,7 @@
 
 ### Archiving and relaying every Bitcoin milestone 
 
-![bitcal-logo-wide](https://i.nostr.build/Z3h9vApqgLXXgvdH.jpg)
+![bitcal-logo-wide](https://i.nostr.build/dOwtfOe0dvsriH7K.png)
 
 ## Overview
 
