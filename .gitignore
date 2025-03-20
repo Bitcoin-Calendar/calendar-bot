@@ -5,6 +5,14 @@
 **/*.log
 *.log
 nostr_bot.log
+nostr_bot_unknown.log
+nostr_bot_en.log
+nostr_bot_ru.log
+nostr_bot_de.log
+nostr_bot_fr.log
+nostr_bot_es.log
+nostr_bot_it.log
+nostr_bot_ja.log
 
 # Compiled executables
 nostr_bot

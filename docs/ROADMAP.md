@@ -4,9 +4,11 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
 
 ## Q2 2025 (April-June)
 
+`Version: 1.1.0`
+
 ### Database Enhancement
 - **English Event Population**
-  - Target: Expand from current April-only events to 500+ events
+  - Target: Expand from current March & April events to 500+ events across the year (prepare English version based on the extensive Russian version)
   - Add missing historical milestones
   - Standardize formatting and citation requirements
 
@@ -34,6 +36,8 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
 
 ## Q3 2025 (July-September)
 
+`Version: 1.2.0`
+
 ### Content Enhancement
 - **Metadata Optimization**
   - Implement consistent hashtag strategy
@@ -51,7 +55,7 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
   - Add filtering by categories, tags, and dates
 
 ## Q4 2025 (October-December)
-
+`Version: 2.0.0`
 ### API Development
 - **Public API**
   - Create RESTful API for accessing events
@@ -70,20 +74,17 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
   - Create citation standards and guidelines
 
 ## Q1 2026 (January-March)
-
+`Version: 2.1.0`
 ### Mobile Experience
 - **Progressive Web App**
   - Develop PWA for mobile access
   - Implement offline functionality
   - Create notification system for upcoming events
-
-- **User Experience**
-  - Implement search functionality
   - Implement timeline visualization
-  - Add personalization options
-  - Create "save favorite events" functionality
 
 ## Q2 2026 (April-June)
+
+`Version: 2.2.0`
 
 ### Community Features
 - **User Accounts**
@@ -100,9 +101,8 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
 
 ### Educational Resources
 - **Learning Paths**
-  - Develop curated learning paths based on historical events and [21ideas](https://21ideas.org/en/) Bitcoin knowledge base.
-  - Create downloadable educational materials
-  - Implement progress tracking for educational content
+  - Develop curated learning paths based on historical events and [21ideas](https://21ideas.org/en/) Bitcoin knowledge base
+  - Create downloadable educational materials to complement calendar format
 
 ### Integration Ecosystem
 - **Calendar Integration**
@@ -115,3 +115,5 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
   - Implement search by concepts and relationships
   - Develop visualization of historical connections
   - Create AI-assisted navigation of Bitcoin history
+
+[![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
