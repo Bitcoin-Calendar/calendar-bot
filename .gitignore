@@ -14,6 +14,9 @@ nostr_bot_es.log
 nostr_bot_it.log
 nostr_bot_ja.log
 
+# Ignore JSON metrics files
+metrics_*.json
+
 # Compiled executables
 nostr_bot
 
