@@ -1,4 +1,4 @@
-[![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-purple)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
+[![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
 
 # Bitcoin Calendar Bot
 
@@ -12,13 +12,10 @@ The Bitcoin Calendar Bot is a Go-based application that reads events from CSV fi
 
 ## Features
 
-- Reads historical events from CSV files
-- Automatically publishes events to multiple Nostr relays when the date matches the current day
-- Formats posts with proper spacing for readability
-- Implements structured JSON logging for easy debugging and monitoring
-- Configurable to run as a cron job for daily automation
-- Waits between posts to avoid flooding relays
-- Handles multiple paragraphs and links properly
+- **Event Publishing**: Reads events from CSV files and publishes them to Nostr relays
+- **Multi-Language Support**: Currently supports English and Russian, with more languages planned
+- **Structured Logging**: JSON format logging with rotation for easy debugging
+- **Automated Operation**: Configurable to run as a cron job for daily automation
 
 ## Requirements
 
@@ -55,7 +52,7 @@ The Bitcoin Calendar Bot is a Go-based application that reads events from CSV fi
      NOSTR_PRIVATE_KEY_RU=your_russian_private_key_hex_here
      ```
 
-> You can use this outsid of the bitcoin calendar bot context for posting events from different CSV files at specific times on specific dates.
+> You can use this outside of the bitcoin calendar bot context for posting events from different CSV files at specific times on specific dates.
 
 5. Load Environment Variables:
    - The application uses the `github.com/joho/godotenv` package to load environment variables from the `.env` file. Ensure this package is installed and properly configured in your project.
@@ -92,29 +89,26 @@ The bot uses structured logging in JSON format, which allows for better parsing 
 
 The bot utilizes the Nostr protocol to publish events to relays. It leverages the `github.com/nbd-wtf/go-nostr` package for interacting with Nostr relays, ensuring seamless integration and communication.
 
-## Future Improvements
+## Roadmap
 
-We are planning the following enhancements to the Calendar Bot:
+Our development roadmap is organized by quarters:
 
-### Multilingual Support
-- Add support for additional languages beyond English and Russian
-- Create dedicated Nostr accounts for each language
+### Q2 2025
+- Complete English event database population
+- Implement monitoring and alerting
+- Add Telegram channel integration
 
-### Enhanced Event Content
-- Improve event descriptions with relevant hashtags for better discoverability
-- Ensure all events have media files (images) for visual appeal
+### Q3 2025
+- Implement hashtag optimization and event categorization
+- Develop interactive website for browsing events
 
-### Community Contributions
-- Provide documentation and tools for users to add events in their local language
-- Create a submission process for community-contributed events
+### Future Plans
+- API development
+- Web interface
+- Community features
+- Educational resources
 
-### Extended Integrations
-- Automate cross-posting to Telegram channels
-- Add support for calendar subscription formats (iCal, etc.)
-
-### Expanded Nostr Capabilities
-- Look into implementing support for more event kinds
-- Explore zap-splitting for supporting content contributors
+See the [detailed roadmap](/ROADMAP.md) for more information.
 
 ## License
 
@@ -133,3 +127,7 @@ For any questions or feedback, please contact [Tony](https://njump.me/npub10awzk
 Support Bitcoin calendar via [Coinos](https://coinos.io/)
 - Биткоин календарь RU ⚡️ `bitcalru@coinos.io` 🔗 [Страничка на Coinos](https://coinos.io/bitcalru).
 - Bitcoin Calendar EN ⚡️ `bitcal@coinos.io` 🔗 [Coinos page](https://coinos.io/bitcal).
+
+...or 
+
+[![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
