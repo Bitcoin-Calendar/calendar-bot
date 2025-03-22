@@ -46,7 +46,10 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
 - **Content Expansion**
   - Begin Spanish language support
   - Create thematic collections of related events
-  - Develop "This Week in Bitcoin History" compilations
+  - Develop "This Week in Bitcoin History" compilations and weekly statistics reports
+
+## Q4 2025 (October-December)
+`Version: 2.0.0`
 
 ### Web Presence Development
 - **Interactive Website**
@@ -54,8 +57,6 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
   - Create search functionality
   - Add filtering by categories, tags, and dates
 
-## Q4 2025 (October-December)
-`Version: 2.0.0`
 ### API Development
 - **Public API**
   - Create RESTful API for accessing events
@@ -67,14 +68,10 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
   - Develop widgets for embedding calendar events
   - Create RSS feeds for various categories
 
-### Content System Evolution
-- **Submission System**
-  - Design curator workflow for approving submissions
-  - Implement verification process for historical accuracy
-  - Create citation standards and guidelines
-
 ## Q1 2026 (January-March)
+
 `Version: 2.1.0`
+
 ### Mobile Experience
 - **Progressive Web App**
   - Develop PWA for mobile access
@@ -115,5 +112,12 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
   - Implement search by concepts and relationships
   - Develop visualization of historical connections
   - Create AI-assisted navigation of Bitcoin history
+
+### Content System Evolution
+- **Submission System**
+  - Design curator workflow for approving submissions
+  - Implement verification process for historical accuracy
+  - Create citation standards and guidelines
+
 
 [![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
