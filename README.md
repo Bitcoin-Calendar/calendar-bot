@@ -15,7 +15,7 @@ The Bitcoin Calendar Bot is a Go-based application that reads events from CSV fi
 1. **Clone the repository**
    ```bash
    git clone https://github.com/bitcoin21ideas/nostr-calendar-bot.git
-   cd nostr-calendar-bot
+   cd calendar-bot
    ```
 
 2. **Build the application**
