@@ -1,98 +1,66 @@
-# Nostr Calendar Bot
+[![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
+
+# Bitcoin Calendar Bot
+
+### Archiving and relaying every Bitcoin milestone 
+
+![bitcal-logo-wide](https://i.nostr.build/dOwtfOe0dvsriH7K.png)
 
 ## Overview
 
-The Nostr Calendar Bot is a Go-based application that reads events from a CSV file and publishes them to Nostr relays. This bot is designed to automate the posting of calendar events, making it easier to share important dates and information about Bitcoin and cryptocurrency history.
+The Bitcoin Calendar Bot is a Go-based application that reads events from CSV files and publishes them to Nostr relays. This bot automates the posting of calendar events about Bitcoin history. The bot currently supports English and Russian versions, with plans to add more languages.
 
-## Features
+## Quick Start
 
-- Reads historical events from a CSV file
-- Automatically publishes events to multiple Nostr relays when the date matches the current day
-- Formats posts with proper spacing for readability
-- Implements structured JSON logging for easy debugging and monitoring
-- Configurable to run as a cron job for daily automation
-- Waits between posts to avoid flooding relays
-- Handles multiple paragraphs and links properly
-
-## Requirements
-
-- Go 1.18 or higher
-- Access to Nostr relays
-- A CSV file formatted with event data
-- Private key for the Nostr account
-
-## Installation
-
-1. Clone the repository:
+1. **Clone the repository**
    ```bash
    git clone https://github.com/bitcoin21ideas/nostr-calendar-bot.git
    cd nostr-calendar-bot
    ```
 
-2. Build the application:
+2. **Build the application**
    ```bash
-   go build -o nostr_bot main.go
+   go build -o nostr_bot main.go metrics.go
    ```
 
-3. Configure your `events.csv` file in the same directory as the executable. The CSV should have this format:
+3. **Set up environment variables**
+   Create a `.env` file in the project directory:
    ```
-   "date","title","description"
-   "YYYY-MM-DD","Event Title","Event Description |https://link.to/resource"
+   NOSTR_PRIVATE_KEY_1=your_first_private_key_hex_here
+   NOSTR_PRIVATE_KEY_2=your_second_private_key_hex_here 
    ```
 
-   Add `|` where you want to add a line break (does not work after the media link if it is fetched as preview by Nostr clients).
-
-4. Set up a cron job to run the bot daily:
+4. **Run the bot**
    ```bash
-   crontab -e
+   # For English events
+   ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
+   
+   # For Russian events
+   ./nostr_bot events_ru.csv NOSTR_PRIVATE_KEY_RU
    ```
-   Add the following line to schedule the bot to run at 4:00 AM UTC:
-   ```bash
-   00 04 * * * cd /path/to/nostr-calendar-bot && ./nostr_bot >> /path/to/nostr_bot.log 2>&1
-   ```
 
-## Logging
+## Documentation
 
-The bot uses structured logging in JSON format, which allows for better parsing and analysis. Logs are rotated using the `lumberjack` package to manage log file sizes. The log file (`nostr_bot.log`) contains information about:
-
-- Event processing status
-- Relay connection success/failures
-- Publishing attempts and results
-- Performance metrics
-
-## Future Improvements
-
-We are planning the following enhancements to the Calendar Bot:
-
-### Multilingual Support
-- Add support for English, Spanish, and German versions of events
-- Create dedicated Nostr accounts for each language
-
-### Enhanced Event Content
-- Improve event descriptions with relevant hashtags for better discoverability
-- Ensure all events have media files (images) for visual appeal
-
-### Community Contributions
-- Provide documentation and tools for users to add events in their local language
-- Create a submission process for community-contributed events
-
-### Extended Integrations
-- Automate cross-posting to Telegram channels
-- Explore integration with Twitter/X and other social platforms
-- Add support for calendar subscription formats (iCal, etc.)
-
-### Expanded Nostr Capabilities
-- Look into implementing support for kind:20 events
-- Explore zap-splitting for supporting content contributors
+- [Installation Guide](docs/INSTALLATION.md) - Detailed installation and setup instructions
+- [Usage Guide](docs/USAGE.md) - How to use the bot effectively and available configuration options
+- [CSV Format](docs/CSV_FORMAT.md) - How to structure your CSV event files
+- [Development Guide](docs/DEVELOPMENT.md) - Information for developers
+- [Roadmap](docs/ROADMAP.md) - Future development plans
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/bitcoin21ideas/nostr-calendar-bot/blob/main/LICENSE.txt) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) file for details.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements. If you'd like to contribute to any of the future improvements listed above, please reach out to coordinate efforts.
+Contributions are welcome! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details.
 
-## Contact
+## Support
 
-For any questions or feedback, please contact [Tony](https://njump.me/npub10awzknjg5r5lajnr53438ndcyjylgqsrnrtq5grs495v42qc6awsj45ys7) via Nostr.
+Support Bitcoin calendar via [Coinos](https://coinos.io/)
+- Bitcoin Calendar EN ⚡️ `bitcal@coinos.io` 🔗 [Coinos page](https://coinos.io/bitcal)
+- Биткоин календарь RU ⚡️ `bitcalru@coinos.io` 🔗 [Страничка на Coinos](https://coinos.io/bitcalru)
+
+...or 👇
+
+[![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)
