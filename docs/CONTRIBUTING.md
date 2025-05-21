@@ -26,7 +26,7 @@ There are many ways to contribute to the Bitcoin Calendar:
 
 ### Finding Issues to Work On
 
-- Check the [GitHub Issues](https://github.com/bitcoin21ideas/nostr-calendar-bot/issues) for open tasks
+- Check the [GitHub Issues](https://github.com/Bitcoin-Calendar/calendar-bot/issues) for open tasks
 - Look for issues tagged with "good-first-issue" if you're new to the project
 - Review the [Roadmap](ROADMAP.md) for planned features
 

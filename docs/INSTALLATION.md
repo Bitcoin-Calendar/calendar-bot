@@ -14,7 +14,7 @@ This guide provides detailed instructions for installing and setting up the Bitc
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/bitcoin21ideas/nostr-calendar-bot.git
+git clone https://github.com/Bitcoin-Calendar/calendar-bot.git
 cd nostr-calendar-bot
 ```
 
