@@ -22,6 +22,11 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
   - Implement health check system
   - Set up automated alerts for failed posts
 
+- **Dockerization of Calendar Bot**
+  - [x] Create Dockerfile for the Go application
+  - [x] Implement Docker Compose setup for easy deployment and management (production and test instances)
+  - [x] Updated documentation for Docker-based setup
+
 ### Data Redundancy Improvements
 - **Deeper Nostr Integration**
   - [x] Spin up Haven relay

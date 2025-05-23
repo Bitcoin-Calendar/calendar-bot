@@ -160,21 +160,6 @@ Make sure to adjust the schedule and the path (`/path/to/your/calendar-bot`) to 
 
 If you are running the bot manually (not using Docker), you can set up cron jobs as follows:
 
-Important: Cron jobs run with a minimal environment and typically do not automatically source your shell's profile files (like `.bashrc` or `.zshrc`) or the project's `.env` file. You must ensure that the required environment variables (e.g., `NOSTR_PRIVATE_KEY_EN`, `LOG_DIR` if you set it outside the command) are available when the cron job executes. Common methods include:
-*   Defining the variables directly within the crontab itself (e.g., `NOSTR_PRIVATE_KEY_EN=yourkey 00 12 * * * cd /path/to/nostr-calendar-bot && ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN`).
-*   Creating a small wrapper script that first sources a file exporting the variables (or exports them directly) and then calls the bot. For example, `00 12 * * * /path/to/run_english_bot.sh`, where `run_english_bot.sh` might contain:
-    ```bash
-    #!/bin/bash
-    # Adjust path to your .env file or define variables directly
-    # export $(grep -v '^#' /path/to/your/calendar-bot/.env | xargs) # Example for .env sourcing
-    cd /path/to/nostr-calendar-bot
-    LOG_DIR=./logs ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
-    ```
-    Ensure the wrapper script is executable (`chmod +x /path/to/run_english_bot.sh`).
-*   Some systems allow prefixing the command with `env VAR=value` in the crontab, but this can vary.
-
-Make sure to replace `/path/to/nostr-calendar-bot` with the actual absolute path to your project and adjust variable definitions as needed.
-
 ```bash
 # For English events at 12 PM UTC
 # Example assuming variables are set within the cron environment or a wrapper script:
