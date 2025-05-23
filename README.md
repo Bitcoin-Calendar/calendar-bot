@@ -43,7 +43,7 @@ The Bitcoin Calendar Bot is a Go-based application that reads events from CSV fi
 
 ### Automated Daily Posting with Cron
 
-To ensure the bot posts events daily, you can set up a cron job. Find details and examples of how to setup a cronjob in our Usage Guide.
+To ensure the bot posts events daily, you can set up a cron job. Find details and examples of how to setup a cron job in our Usage Guide.
 
 ## Documentation
 
