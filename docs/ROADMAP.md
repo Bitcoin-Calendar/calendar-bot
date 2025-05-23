@@ -6,6 +6,8 @@ The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app
 
 ![project-architecture](https://haven.bitcoin-calendar.org/4c7f2fecfa359e28941a006e3270b72f4299d6c15fea1196eea896a492703678.png)
 
+_View as HTML page [here](project-architecture.html)_
+
 ## Q2 2025 (April-June)
 
 `Version: 1.1.0`

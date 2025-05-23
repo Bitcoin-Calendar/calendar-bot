@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Calendar Architecture</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #f39c12, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .architecture {
+            display: flex;
+            gap: 30px;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .section {
+            flex: 1;
+            min-width: 300px;
+            padding: 25px;
+            border-radius: 15px;
+            position: relative;
+            backdrop-filter: blur(5px);
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .standalone {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.2));
+            border-color: #27ae60;
+        }
+        
+        .core-app {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.1), rgba(41, 128, 185, 0.2));
+            border-color: #2980b9;
+        }
+        
+        .external {
+            background: linear-gradient(135deg, rgba(230, 126, 34, 0.1), rgba(211, 84, 0, 0.2));
+            border-color: #e67e22;
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .standalone h2 {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+        
+        .core-app h2 {
+            background: linear-gradient(45deg, #2980b9, #3498db);
+        }
+        
+        .external h2 {
+            background: linear-gradient(45deg, #e67e22, #f39c12);
+        }
+        
+        .component {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .component:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .standalone .component {
+            border-left-color: #27ae60;
+        }
+        
+        .core-app .component {
+            border-left-color: #2980b9;
+        }
+        
+        .external .component {
+            border-left-color: #e67e22;
+        }
+        
+        .component h3 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        
+        .component p {
+            margin: 5px 0;
+            color: #555;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .database {
+            background: linear-gradient(45deg, #95a5a6, #7f8c8d);
+            color: white;
+            text-align: center;
+            border-radius: 50px;
+            padding: 15px;
+            margin: 10px 0;
+            border: none;
+        }
+        
+        .connections {
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(44, 62, 80, 0.05);
+            border-radius: 15px;
+            border: 2px dashed #34495e;
+        }
+        
+        .connections h2 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .connection-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .connection {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #9b59b6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .arrow {
+            display: inline-block;
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 0 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .architecture {
+                flex-direction: column;
+            }
+            
+            .connection-list {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+        }
+        
+        .highlight {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Bitcoin Calendar Project Architecture</h1>
+        
+        <div class="architecture">
+            <div class="section standalone">
+                <h2>🔗 Standalone Services</h2>
+                
+                <div class="component">
+                    <h3>📡 Nostr Relay (Haven relay and Blossom server)</h3>
+                    <p>• Independent Docker container setup</p>
+                    <p>• Handles Nostr client connections</p>
+                    <p>• Stores media files</p>
+                    <p>• Receives event publications from Go Bot</p>
+                    <p>• <span class="highlight">docker-compose.yml</span></p>
+                </div>
+                
+                <div class="component">
+                    <h3>📦 ArchiveBox</h3>
+                    <p>• Web archiving service</p>
+                    <p>• Stores historical Bitcoin content</p>
+                    <p>• Admin/curator managed</p>
+                    <p>• <span class="highlight">docker-compose.yml</span></p>
+                </div>
+                
+                <div class="component database">
+                    <h3>💾 ArchiveBox SQLite DB</h3>
+                    <p>Docker Volume for ArchiveBox</p>
+                </div>
+            </div>
+            
+            <div class="section core-app">
+                <h2>🗓️ Bitcoin Calendar Core App</h2>
+                <p style="text-align: center; margin-bottom: 20px; font-style: italic;">Single docker-compose.yml</p>
+                
+                <div class="component">
+                    <h3>🔌 API Service</h3>
+                    <p>• Central data management (Go/Node.js)</p>
+                    <p>• RESTful endpoints for events</p>
+                    <p>• Handles authentication & validation</p>
+                    <p>• Multi-language support</p>
+                </div>
+                
+                <div class="component">
+                    <h3>🤖 Go Bot</h3>
+                    <p>• Automated Nostr publisher</p>
+                    <p>• Daily event scheduling</p>
+                    <p>• Fetches from API Service</p>
+                    <p>• Posts to Nostr Relays</p>
+                </div>
+                
+                <div class="component">
+                    <h3>🌐 Next.js Website</h3>
+                    <p>• Modern web interface</p>
+                    <p>• Calendar view & search</p>
+                    <p>• Multi-language toggle</p>
+                    <p>• Events' details and links to archived sources</p>
+                </div>
+                
+                <div class="component database">
+                    <h3>💾 Events SQLite DB</h3>
+                    <p>Single source of truth for Bitcoin events</p>
+                    <p>Docker Volume for API Service</p>
+                </div>
+            </div>
+            
+            <div class="section external">
+                <h2>👥 External Actors</h2>
+                
+                <div class="component">
+                    <h3>🌍 Internet Users</h3>
+                    <p>• Access Next.js Website</p>
+                    <p>• Browse Bitcoin history</p>
+                    <p>• Search & filter events</p>
+                </div>
+                
+                <div class="component">
+                    <h3>📱 Nostr Clients</h3>
+                    <p>• Read from Nostr Relay</p>
+                    <p>• Receive event notifications</p>
+                    <p>• Bidirectional communication</p>
+                </div>
+                
+                <div class="component">
+                    <h3>👨‍💼 Admin/Curator</h3>
+                    <p>• Manages ArchiveBox content</p>
+                    <p>• Adds historical sources</p>
+                    <p>• Content moderation</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="connections">
+            <h2>🔄 System Interactions</h2>
+            <div class="connection-list">
+                <div class="connection">
+                    <strong>Next.js Website</strong> <span class="arrow">→</span> <strong>API Service</strong>
+                    <p>HTTP requests for event data, search, filtering</p>
+                </div>
+                
+                <div class="connection">
+                    <strong>Go Bot</strong> <span class="arrow">→</span> <strong>API Service</strong>
+                    <p>Fetches daily events for Nostr publishing</p>
+                </div>
+                
+                <div class="connection">
+                    <strong>Go Bot</strong> <span class="arrow">→</span> <strong>Nostr Relay</strong>
+                    <p>Publishes formatted Bitcoin events</p>
+                </div>
+                
+                <div class="connection">
+                    <strong>Go Bot</strong> <span class="arrow">→</span> <strong>ArchiveBox</strong>
+                    <p>Points to  archived link references</p>
+                </div>
+                
+                <div class="connection">
+                    <strong>Next.js Website</strong> <span class="arrow">→</span> <strong>ArchiveBox</strong>
+                    <p>Links to archived historical sources</p>
+                </div>
+                
+                <div class="connection">
+                    <strong>API Service</strong> <span class="arrow">↔</span> <strong>Events SQLite DB</strong>
+                    <p>Read/write event data, multi-language content</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
