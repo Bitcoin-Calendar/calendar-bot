@@ -1,0 +1,19 @@
+# From .gitignore
+.env
+**/*.log
+*.log
+logs/
+metrics/
+nostr_bot
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+tmp/
+
+# Docker specific
+Dockerfile
+.dockerignore
+
+# Git directory
+.git/ 

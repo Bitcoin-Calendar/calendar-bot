@@ -37,7 +37,6 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
   - Create event categories and tagging system
 
 - **Content Expansion**
-  - Begin Spanish language support
   - Create thematic collections of related events
   - Develop "This Week in Bitcoin History" compilations and weekly statistics reports
 
