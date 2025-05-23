@@ -2,6 +2,10 @@
 
 This document outlines the development roadmap for the Bitcoin Calendar project, organized by quarter with specific goals and milestones.
 
+The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app with minimal to no dependency on third-party services. This will include storing historical events details, hosting an archive of all the webpages and a media server to store all necessary media files, running Nostr relay to broadcast events, launching a website to display events and allow visitors to interact with them. We are at the very beginning of the journey:
+
+![project-architecture](https://haven.bitcoin-calendar.org/4c7f2fecfa359e28941a006e3270b72f4299d6c15fea1196eea896a492703678.png)
+
 ## Q2 2025 (April-June)
 
 `Version: 1.1.0`
