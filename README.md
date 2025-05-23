@@ -8,7 +8,7 @@
 
 ## Overview
 
-The Bitcoin Calendar Bot is a Go-based application that reads events from CSV files and publishes them to Nostr relays. This bot automates the posting of calendar events about Bitcoin history. The bot currently supports English and Russian versions, with plans to add more languages.
+The Bitcoin Calendar Bot is a Go-based application that reads events from CSV files and publishes them to Nostr relays. This bot automates the posting of calendar events about Bitcoin history. The bot supports English and Russian versions.
 
 ## Quick Start
 
@@ -30,6 +30,8 @@ The Bitcoin Calendar Bot is a Go-based application that reads events from CSV fi
    NOSTR_PRIVATE_KEY_2=your_second_private_key_hex_here 
    ```
 
+   Or copy the `.env-example` file and adjust its contents as needed.
+
 4. **Run the bot**
    ```bash
    # For English events
@@ -38,6 +40,10 @@ The Bitcoin Calendar Bot is a Go-based application that reads events from CSV fi
    # For Russian events
    ./nostr_bot events_ru.csv NOSTR_PRIVATE_KEY_RU
    ```
+
+### Automated Daily Posting with Cron
+
+To ensure the bot posts events daily, you can set up a cron job. Find details and examples of how to setup a cronjob in our Usage Guide.
 
 ## Documentation
 
@@ -57,9 +63,11 @@ Contributions are welcome! Please see our [Contributing Guide](docs/CONTRIBUTING
 
 ## Support
 
-Support Bitcoin calendar via [Coinos](https://coinos.io/)
+Support Bitcoin Calendar via [Coinos](https://coinos.io/)
 - Bitcoin Calendar EN ⚡️ `bitcal@coinos.io` 🔗 [Coinos page](https://coinos.io/bitcal)
 - Биткоин календарь RU ⚡️ `bitcalru@coinos.io` 🔗 [Страничка на Coinos](https://coinos.io/bitcalru)
+
+Support Bitcoin Calendar on [Geyser](https://geyser.fund/project/bitcoincalendar)
 
 ...or 👇
 

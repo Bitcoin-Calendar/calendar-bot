@@ -21,17 +21,11 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
 - **Monitoring and Alerting**
   - Implement health check system
   - Set up automated alerts for failed posts
-  - Create status dashboard for internal use
-
-- **Reliability Enhancements**
-  - Add automated testing suite
-  - Improve error handling and recovery mechanisms
-  - Implement graceful degradation for relay issues
 
 ### Data Redundancy Improvements
 - **Deeper Nostr Integration**
-  - Spin up Haven relay
-  - Spin up Blossom Server
+  - [x] Spin up Haven relay
+  - [x] Spin up Blossom Server
 
 ## Q3 2025 (July-September)
 

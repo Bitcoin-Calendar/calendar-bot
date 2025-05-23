@@ -49,7 +49,7 @@ The bot checks for events matching today's date by comparing the month and day p
 ### Best Practices
 
 1.	**Column Formatting**: Enclose values in double quotes to handle special characters properly.
-2.	**Quote Usage**: Use quotes only to define column boundaries; replace internal quotes with ' if needed.
+2.	**Quote Usage**: Use quotes only to define column boundaries; replace internal quotes with "" if needed.
 3.	**Consistent Formatting**: Maintain uniform formatting across CSV files.
 4.	**Verification**: Ensure all URLs are valid and functional.
 5.	**Historical Accuracy**: Verify the correctness of all events and dates.
