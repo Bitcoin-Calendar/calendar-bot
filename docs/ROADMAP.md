@@ -6,24 +6,39 @@ The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app
 
 ![project-architecture](https://haven.bitcoin-calendar.org/4c7f2fecfa359e28941a006e3270b72f4299d6c15fea1196eea896a492703678.png)
 
-_View as HTML page [here](project-architecture.html)_
-
 ## Q2 2025 (April-June)
 
 `Version: 1.1.0`
 
-### Database Enhancement
+### Core Data & Content Enhancement
 - **English Event Population**
   - Target: Expand from current March & April events to 500+ events across the year (prepare English version based on the extensive Russian version)
   - Add missing historical milestones
   - Standardize formatting and citation requirements
-
 - **Content Quality Improvements**
   - Add media files for all events (images, charts)
   - Include additional backup archive links to prevent link rot
   - Implement consistent formatting standards
+- **SQLite Database Migration**
+  - Migrate event data from CSV files to an SQLite database
+  - Update bot and API to use SQLite as the primary data source
+  - Define database schema and data integrity rules
 
-### Infrastructure Improvements
+
+### API Development
+- **Public API**
+  - Create RESTful API for accessing events from SQLite DB
+  - Implement rate limiting and authentication
+  - Develop comprehensive API documentation
+- **Integration Options**
+  - Implement webhooks for event notifications
+  - Develop widgets for embedding calendar events
+  - Create RSS feeds for various categories
+
+### Infrastructure & Archiving
+- **ArchiveBox Setup**
+  - Setup ArchiveBox to locally host all the web pages and documents Bitcoin Calendar refers to
+  - Plan integration of archived links into event data (via SQLite DB)
 - **Monitoring and Alerting**
   - Implement health check system
   - Set up automated alerts for failed posts
@@ -52,6 +67,7 @@ _View as HTML page [here](project-architecture.html)_
   - Develop "This Week in Bitcoin History" compilations and weekly statistics reports
 
 ## Q4 2025 (October-December)
+
 `Version: 2.0.0`
 
 ### Web Presence Development
@@ -59,17 +75,6 @@ _View as HTML page [here](project-architecture.html)_
   - Develop responsive frontend for browsing events
   - Create search functionality
   - Add filtering by categories, tags, and dates
-
-### API Development
-- **Public API**
-  - Create RESTful API for accessing events
-  - Implement rate limiting and authentication
-  - Develop comprehensive API documentation
-
-- **Integration Options**
-  - Implement webhooks for event notifications
-  - Develop widgets for embedding calendar events
-  - Create RSS feeds for various categories
 
 ## Q1 2026 (January-March)
 
@@ -101,7 +106,6 @@ _View as HTML page [here](project-architecture.html)_
 
 ### Bitcoin Archive
 - **Ensuring no Bitcoin event is lost**
-  - Setup ArchiveBox to locally host all the web pages and documents Bitcoin Calendar refers to
   - Integrate archived pages across the Bitcoin Calendar ecosystem – the bot, the website - to ensure the project does not have to rely on any third-party services 
 
 ### Educational Resources
