@@ -1,114 +1,86 @@
 # Usage Guide
 
-This guide explains how to use the Bitcoin Calendar Bot effectively, including available configuration options and command examples.
+This guide explains how to use the Bitcoin Calendar Bot effectively, primarily focusing on the Docker Compose setup, including configuration options and command examples.
 
-## Basic Usage
+## Basic Operation Principle
 
-The basic syntax for running the Bitcoin Calendar Bot is:
+The Bitcoin Calendar Bot fetches historical Bitcoin events for the current day (month and day) from a configured API endpoint. It then posts these events to Nostr relays using a specified Nostr private key. The language of the events (e.g., English or Russian) is determined by the `BOT_PROCESSING_LANGUAGE` environment variable, which is pre-configured for each service in the `docker-compose.yml` file.
 
-```bash
-./nostr_bot <csv_file_path> <env_var_for_private_key>
-```
+## Running the Bot with Docker Compose
 
-### Parameters:
+The primary way to run the bot is by using `docker-compose run <service-name>`. The `docker-compose.yml` file defines several services:
 
-- `<csv_file_path>`: Path to the CSV file containing the events to be posted
-- `<env_var_for_private_key>`: Name of the environment variable containing the Nostr private key
+-   `nostr-bot-en`: Production service for English posts.
+-   `nostr-bot-ru`: Production service for Russian posts.
+-   `nostr-bot-en-test`: Test service for English posts (uses test keys).
+-   `nostr-bot-ru-test`: Test service for Russian posts (uses test keys).
 
 ### Examples:
 
 ```bash
-# Run the bot with English events
-./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
+# Run the English production bot (typically for a cron job)
+docker-compose run --rm nostr-bot-en
 
-# Run the bot with Russian events
-./nostr_bot events_ru.csv NOSTR_PRIVATE_KEY_RU
-
-# Run the bot with a custom CSV file
-./nostr_bot custom_events.csv CUSTOM_NOSTR_KEY
+# Run the Russian test bot manually
+docker-compose run --rm nostr-bot-ru-test
 ```
+Each service is configured with the correct `BOT_PROCESSING_LANGUAGE` and the name of the environment variable that holds its corresponding Nostr private key.
 
 ## Configuration Options
 
-The Bitcoin Calendar Bot can be configured using environment variables, either set in your shell or in the `.env` file.
+The Bitcoin Calendar Bot is configured using environment variables. Most of these are set in the `.env` file, while `BOT_PROCESSING_LANGUAGE` is set per-service in `docker-compose.yml`.
 
-### Required Environment Variables
+### Required Environment Variables (in `.env` file)
 
-These must be set in your `.env` file:
+-   `BOT_API_ENDPOINT`: Full base URL of the Bitcoin Historical Events API (e.g., `http://your_api_ip:port/api`).
+-   `BOT_API_KEY`: Your secret API key for the events API.
+-   `NOSTR_PRIVATE_KEY_EN`: Hexadecimal private key for posting English events (production).
+-   `NOSTR_PRIVATE_KEY_RU`: Hexadecimal private key for posting Russian events (production).
+-   `NOSTR_PRIVATE_KEY_ENT`: Hexadecimal private key for posting English events (testing).
+-   `NOSTR_PRIVATE_KEY_RUT`: Hexadecimal private key for posting Russian events (testing).
 
-- `NOSTR_PRIVATE_KEY_EN`: Private key for posting English events
-- `NOSTR_PRIVATE_KEY_RU`: Private key for posting Russian events
+### Logging Configuration (can be set in `.env` or defaults in `docker-compose.yml` used)
 
-### Logging Configuration
+| Variable      | Description                                     | Options                        | Default (in `docker-compose.yml` for prod/test) | 
+|---------------|-------------------------------------------------|--------------------------------|-------------------------------------------------| 
+| `LOG_LEVEL`   | Sets the logging verbosity.                     | `debug`, `info`, `warn`, `error` | `info` (prod), `debug` (test)                   |
+| `LOG_DIR`     | Custom directory *inside the container* for log files. | Any valid directory path       | `/app/logs` (mounted to host `./logs`)          |
+| `CONSOLE_LOG` | Output logs to console in addition to files.    | `true`, `false`                | `false` (prod), `true` (test)                   |
 
-Control the logging behavior with these optional environment variables:
+### Examples of Overriding Logging in `.env`:
 
-| Variable | Description | Options | Default |
-|----------|-------------|---------|---------|
-| `LOG_LEVEL` | Sets the logging verbosity | `debug`, `info`, `warn`, `error` | `info` |
-| `LOG_DIR` | Custom directory for log files | Any valid directory path | Current directory |
-| `CONSOLE_LOG` | Output logs to console in addition to files | `true`, `false` | `false` |
-| `DEBUG` | Legacy option to enable debug mode | `true`, `false` | `false` |
-
-### Examples:
-
-```bash
-# Run with debug logging
-LOG_LEVEL=debug ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
-
-# Run with console output
-CONSOLE_LOG=true ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
-
-# Run with custom log directory
-LOG_DIR=/var/log/nostr-calendar-bot ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
-
-# Combine multiple options
-LOG_LEVEL=debug CONSOLE_LOG=true LOG_DIR=/var/log/nostr-calendar-bot ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
+To make all services (including production) log at debug level to console:
+```env
+# In .env file
+LOG_LEVEL="debug"
+CONSOLE_LOG="true"
 ```
 
 ## Log Files
 
-The bot automatically creates log files based on the language of the CSV file:
+The bot automatically creates log files named `nostr_bot.log` within the directory specified by `LOG_DIR` (inside the container). This directory is mapped to `./logs` on your host machine by default in `docker-compose.yml`.
 
-- English events: `nostr_bot_en.log` 
-- Russian events: `nostr_bot_ru.log`
-- Other (unidentified) languages: `nostr_bot_unknown.log`
-
-If you specify a custom `LOG_DIR` (e.g., via environment variable or Docker volume mount), logs will be stored in that directory with the same naming convention. 
-
-When using Docker, the logs are typically mounted to a directory on your host machine (e.g., `./logs` in the provided `docker-compose.yml`). You can view them by navigating to this directory on your host system.
-For test services run with `docker-compose run --rm nostr-bot-en-test`, logs are also output to the console by default due to `CONSOLE_LOG=true` in their service definition.
+-   The log file contains entries from all runs, regardless of language, as it's a single log file now inside the container. The language being processed is indicated in the log messages themselves.
 
 ### Log Rotation
 
 Log files are automatically rotated when they reach 10MB, with the following settings:
-- Maximum of 3 backup files are kept
-- Log files older than 28 days are deleted
-- Rotated log files are compressed to save space
+-   Maximum of 3 backup files are kept.
+-   Log files older than 28 days are deleted.
+-   Rotated log files are compressed to save space.
 
-## Event Processing
+## Event Processing Flow
 
-The bot processes the CSV file to find events that match the current date:
+The bot performs the following steps:
 
-1. It scans the CSV file for events matching today's date (MM-DD format)
-2. For each matching event, it:
-   - Generates a unique request ID for tracking
-   - Formats the event content with proper line breaks
-   - Signs the event with your private key
-   - Publishes the event to multiple Nostr relays
-   - Waits 30 minutes before posting the next event (if multiple events match today's date)
-
-## Metrics Collection
-
-The bot collects and reports metrics about its operation:
-
-- Number of events posted
-- Number of events skipped
-- Number of events that failed to post
-- Success/failure statistics for each relay
-- Performance metrics (connection and publishing times)
-
-These metrics are logged and exported to a JSON file named `metrics_<language>_<date>.json` at the end of each run.
+1.  Reads its configuration (API endpoint, API key, Nostr private key name, processing language).
+2.  Fetches events for the current calendar day (month and day) from the API, for the configured language.
+3.  For each matching event:
+    *   Generates a unique request ID for tracking.
+    *   Formats the event content.
+    *   Signs the event with the appropriate Nostr private key.
+    *   Publishes the event to multiple pre-configured Nostr relays.
+    *   If multiple events are found for the day, it waits 30 minutes after a successful multi-relay publish attempt before processing the next event.
 
 ## Running Test Instances
 
@@ -124,22 +96,22 @@ docker-compose run --rm nostr-bot-en-test
 docker-compose run --rm nostr-bot-ru-test
 ```
 
-Key characteristics of test instances:
+Key characteristics of test instances as defined in `docker-compose.yml`:
 
-*   **Verbose Logging**: They default to more verbose logging settings (`LOG_LEVEL=debug`, `CONSOLE_LOG=true`) as defined in `docker-compose.yml`. This helps in debugging and verifying behavior.
-*   **Shared Event Files**: They use the same `events_en.csv` and `events_ru.csv` files as the production bots.
-*   **Logs and Metrics**: By default, logs and metrics from test runs will go into the same `./logs` and `./metrics` directories on your host machine. If you prefer to keep test outputs separate, you can modify the `volumes` in `docker-compose.yml` for the test services (e.g., change `./logs:/app/logs` to `./logs-test:/app/logs`).
+*   **Language Specific**: `nostr-bot-en-test` is configured for English, `nostr-bot-ru-test` for Russian via `BOT_PROCESSING_LANGUAGE`.
+*   **Test Keys**: They use `NOSTR_PRIVATE_KEY_ENT` and `NOSTR_PRIVATE_KEY_RUT` respectively.
+*   **Verbose Logging**: They default to more verbose logging settings (`LOG_LEVEL=debug`, `CONSOLE_LOG=true`).
+*   **Logs**: By default, logs from test runs will go into the same `./logs` directory on your host machine as production runs. If you prefer to keep test outputs separate, you can modify the `volumes` in `docker-compose.yml` for the test services (e.g., change `./logs:/app/logs` to `./logs-test:/app/logs`).
 
-## Automated Operation
+## Automated Operation (Cron Jobs)
 
-For regular posting, it's recommended to set up cron jobs to run the bot automatically. The bot is designed to run, process events for the current day, and then exit.
+For regular posting, set up cron jobs to run the production bot services automatically. The bot is designed to run, process events for the current day, and then exit.
 
 ### With Docker (Recommended)
 
-If you are using the Docker setup, you will use `docker-compose run --rm <service-name>` in your cron jobs. This starts the specified production service, which runs its defined command and then exits. The `--rm` flag ensures the container is removed after completion.
+Use `docker-compose run --rm <service-name>` in your cron jobs. This starts the specified production service, which runs its defined command and then exits. The `--rm` flag ensures the container is removed after completion.
 
-Modify your crontab (e.g., by running `crontab -e`) to include entries similar to the following. Ensure the path to your project directory (where `docker-compose.yml` is located) is correct.
-When you use `docker-compose run`, it automatically looks for and loads environment variables from a `.env` file located in the same directory as your `docker-compose.yml` file, making them available to the container. This means your `NOSTR_PRIVATE_KEY_EN`, `NOSTR_PRIVATE_KEY_RU`, etc., defined in `.env` will be accessible to the bot services.
+Modify your crontab (e.g., by running `crontab -e`) to include entries similar to the following. Ensure the path to your project directory (where `docker-compose.yml` is located) is correct. `docker-compose run` automatically loads variables from `.env` in that directory.
 
 ```cron
 # Bitcoin Calendar Bot Cron Jobs
@@ -156,29 +128,26 @@ When you use `docker-compose run`, it automatically looks for and loads environm
 
 Make sure to adjust the schedule and the path (`/path/to/your/calendar-bot`) to match your setup.
 
-### Manual Setup (Without Docker)
+### Manual Setup (Deprecated)
 
-If you are running the bot manually (not using Docker), you can set up cron jobs as follows:
+Running the bot manually without Docker is not recommended for production or cron jobs due to the difficulty of managing distinct configurations (especially `BOT_PROCESSING_LANGUAGE`) for different language instances. The Docker setup handles this cleanly via services.
+
+If you were to run it manually, you would need to set `BOT_API_ENDPOINT`, `BOT_API_KEY`, `BOT_PROCESSING_LANGUAGE`, and the relevant `NOSTR_PRIVATE_KEY_...` in the environment before executing:
 
 ```bash
-# For English events at 12 PM UTC
-# Example assuming variables are set within the cron environment or a wrapper script:
-00 12 * * * cd /path/to/nostr-calendar-bot && ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
-
-# For Russian events at 4 AM UTC
-00 04 * * * cd /path/to/nostr-calendar-bot && ./nostr_bot events_ru.csv NOSTR_PRIVATE_KEY_RU
+# Example for a manual English run (variables must be pre-set in shell):
+# BOT_PROCESSING_LANGUAGE="en" LOG_LEVEL=debug ./nostr_bot NOSTR_PRIVATE_KEY_EN
 ```
 
 ## Troubleshooting
 
-If you encounter issues, check the log files for detailed error messages and information.
+If you encounter issues, check the log files (in `./logs` on the host by default) for detailed error messages. The console output from `docker-compose run` (especially for test services) will also show logs.
 
-Enable debug logging for more verbose output:
+-   Ensure all required environment variables are correctly set in your `.env` file.
+-   Verify API connectivity and key validity.
+-   Confirm Nostr private keys are correct and in hex format.
+-   Check `docker-compose.yml` for correct service configurations, especially `BOT_PROCESSING_LANGUAGE` and the private key variable names passed in the `command`.
 
-```bash
-LOG_LEVEL=debug ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
-```
-
-Common issues and their solutions are documented in the [Installation Guide](INSTALLATION.md#troubleshooting). 
+Common issues and their solutions are also documented in the [Installation Guide](INSTALLATION.md#troubleshooting).
 
 [![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)

@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nostr-bot-en
-    command: ["./nostr_bot", "events_en.csv", "NOSTR_PRIVATE_KEY_EN"]
+    command: ["./nostr_bot", "NOSTR_PRIVATE_KEY_EN"]
     env_file:
       - .env
     volumes:
@@ -12,6 +12,7 @@ services:
       - ./metrics:/app/metrics
     restart: 'no'
     environment:
+      - BOT_PROCESSING_LANGUAGE=en
       # These can be set in .env or use defaults here if not in .env
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - CONSOLE_LOG=${CONSOLE_LOG:-false}
@@ -23,7 +24,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nostr-bot-ru
-    command: ["./nostr_bot", "events_ru.csv", "NOSTR_PRIVATE_KEY_RU"]
+    command: ["./nostr_bot", "NOSTR_PRIVATE_KEY_RU"]
     env_file:
       - .env
     volumes:
@@ -31,6 +32,7 @@ services:
       - ./metrics:/app/metrics
     restart: 'no'
     environment:
+      - BOT_PROCESSING_LANGUAGE=ru
       # These can be set in .env or use defaults here if not in .env
       - LOG_LEVEL=${LOG_LEVEL:-info}
       - CONSOLE_LOG=${CONSOLE_LOG:-false}
@@ -42,7 +44,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nostr-bot-en-test
-    command: ["./nostr_bot", "events_en.csv", "NOSTR_PRIVATE_KEY_ENT"]
+    command: ["./nostr_bot", "NOSTR_PRIVATE_KEY_ENT"]
     env_file:
       - .env
     volumes:
@@ -50,6 +52,7 @@ services:
       - ./metrics:/app/metrics # e.g., ./logs-test:/app/logs
     restart: 'no'
     environment:
+      - BOT_PROCESSING_LANGUAGE=en
       - LOG_LEVEL=${LOG_LEVEL:-debug} # Default to debug for tests
       - CONSOLE_LOG=${CONSOLE_LOG:-true} # Default to console for tests
       - DEBUG=${DEBUG:-true}
@@ -60,7 +63,7 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: nostr-bot-ru-test
-    command: ["./nostr_bot", "events_ru.csv", "NOSTR_PRIVATE_KEY_RUT"]
+    command: ["./nostr_bot", "NOSTR_PRIVATE_KEY_RUT"]
     env_file:
       - .env
     volumes:
@@ -68,6 +71,7 @@ services:
       - ./metrics:/app/metrics # e.g., ./logs-test:/app/logs
     restart: 'no'
     environment:
+      - BOT_PROCESSING_LANGUAGE=ru
       - LOG_LEVEL=${LOG_LEVEL:-debug} # Default to debug for tests
       - CONSOLE_LOG=${CONSOLE_LOG:-true} # Default to console for tests
       - DEBUG=${DEBUG:-true}

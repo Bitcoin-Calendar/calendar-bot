@@ -1,128 +1,112 @@
 # Installation Guide
 
-This guide provides detailed instructions for installing and setting up the Bitcoin Calendar Bot.
+This guide provides detailed instructions for installing and setting up the Bitcoin Calendar Bot using Docker and Docker Compose, which is the recommended method.
 
 ## Prerequisites
 
-- Go 1.18 or higher
+- [Docker](https://docs.docker.com/get-docker/) installed
+- [Docker Compose](https://docs.docker.com/compose/install/) installed
 - Git
-- Access to Nostr relays
-- Nostr private keys for posting (one for each language)
+- API Endpoint and Key for the Bitcoin Historical Events API
+- Nostr private keys for posting (e.g., one for English posts, one for Russian posts, and test keys)
 
-## Step-by-Step Installation
+## Step-by-Step Installation (Docker & Docker Compose)
 
 ### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Bitcoin-Calendar/calendar-bot.git
-cd nostr-calendar-bot
+cd calendar-bot
 ```
 
-### 2. Install Dependencies
+### 2. Configure Environment Variables
 
-The project uses Go modules to manage dependencies. Run the following command to install all required dependencies:
+Create a `.env` file by copying the example. This file will store your API credentials and Nostr private keys.
 
 ```bash
-go mod download
+cp .env-example .env
 ```
 
-### 3. Build the Application
+Now, edit the `.env` file with your actual credentials:
 
-Build the application using the Go compiler:
+```env
+# --- API Configuration (Required) ---
+BOT_API_ENDPOINT="http://your_api_vps_ip:port/api" # Replace with your API's base URL
+BOT_API_KEY="your_secret_api_key"             # Replace with your API key
+
+# --- Nostr Private Keys (Required) ---
+# Production Keys (used by cron jobs)
+NOSTR_PRIVATE_KEY_EN="your_english_specific_private_key_hex"
+NOSTR_PRIVATE_KEY_RU="your_russian_specific_private_key_hex"
+
+# Test Keys (used by -test services for manual runs)
+NOSTR_PRIVATE_KEY_ENT="your_english_TEST_private_key_hex"
+NOSTR_PRIVATE_KEY_RUT="your_russian_TEST_private_key_hex"
+
+# --- Optional: Logging Configuration (defaults are set in docker-compose.yml) ---
+# These can be uncommented and set here to override service defaults if needed.
+# LOG_LEVEL="debug"
+# CONSOLE_LOG="true"
+# LOG_DIR="/app/logs" # Path inside the container, usually mapped to a host volume
+```
+
+> **Important:** The `.env` file contains sensitive keys. Ensure it is listed in your `.gitignore` file (it should be by default) to prevent accidental commits.
+> The `BOT_PROCESSING_LANGUAGE` is configured per-service within the `docker-compose.yml` and should not be set globally in the `.env` file.
+
+### 3. Build the Docker Image
+
+Build the Docker image which will be used by all services defined in `docker-compose.yml`:
 
 ```bash
-go build -o nostr_bot main.go metrics.go
+docker-compose build
 ```
 
-### 4. Configure Environment Variables
-
-Create a `.env` file in the project directory to store your environment variables:
-
-```
-# Required - Nostr private keys for each language
-NOSTR_PRIVATE_KEY_EN=your_english_private_key_hex_here
-NOSTR_PRIVATE_KEY_RU=your_russian_private_key_hex_here
-
-# Optional - Logging configuration
-LOG_LEVEL=info      # Options: debug, info, warn, error (default: info)
-LOG_DIR=/path/to/logs  # Custom log directory (default: current directory)
-CONSOLE_LOG=true    # Set to true to also output logs to console (default: false)
-DEBUG=true          # Legacy option to enable debug mode (use LOG_LEVEL=debug instead)
+Alternatively, you can build the image for a specific service (which also builds the base image if not present):
+```bash
+# docker-compose build nostr-bot-en
 ```
 
-> **Important:** Ensure that your `.env` file is included in your `.gitignore` to prevent it from being committed to your repository.
+### 4. Verify Setup (Run a Test Bot)
 
-### 5. Prepare CSV Event Files
+Before setting up cron jobs, test one of the pre-configured test services. These use your test Nostr keys and are set to output logs to the console.
 
-Ensure your CSV files are properly formatted and placed in the project directory:
+```bash
+# Test the English bot
+docker-compose run --rm nostr-bot-en-test
 
-- `events_en.csv` - Events in English
-- `events_ru.csv` - Events in Russian
+# Test the Russian bot
+docker-compose run --rm nostr-bot-ru-test
+```
 
-For details on the CSV format, see the [CSV Format Guide](CSV_FORMAT.md).
+Check the console output for any errors. The bot should fetch events for the current day for the specified language and attempt to post them.
 
-## Setting Up for Production
+## Setting Up for Production (Automated Cron Jobs)
 
-### Automated Execution with Cron
+Once you have confirmed the test bots are working, you can set up cron jobs to run the production services (`nostr-bot-en` and `nostr-bot-ru`) automatically.
 
-To schedule the bot to run automatically at specific times, set up cron jobs:
-
-1. Edit your crontab:
-   ```bash
-   crontab -e
-   ```
-
-2. Add entries for each language. For example:
-   ```bash
-   # For English events at 12 PM UTC
-   00 12 * * * cd /path/to/nostr-calendar-bot && ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
-   
-   # For Russian events at 4 AM UTC
-   00 04 * * * cd /path/to/nostr-calendar-bot && ./nostr_bot events_ru.csv NOSTR_PRIVATE_KEY_RU
-   ```
-
-### Docker Installation (Optional)
-
-For containerized deployment:
-
-1. Build the Docker image:
-   ```bash
-   docker build -t bitcoin-calendar-bot .
-   ```
-
-2. Run the container:
-   ```bash
-   docker run -v /path/to/your/env:/app/.env -v /path/to/your/csv:/app/data bitcoin-calendar-bot events_en.csv NOSTR_PRIVATE_KEY_EN
-   ```
+Refer to the [Automated Operation section in the Usage Guide](USAGE.md#automated-operation) for detailed instructions on configuring cron jobs with `docker-compose run`.
 
 ## Troubleshooting
 
-### Common Issues
+- **Connection Errors to API**: Ensure the `BOT_API_ENDPOINT` in your `.env` file is correct and that the API server is running and accessible from where Docker is executing.
+- **Authentication Errors with API**: Verify that `BOT_API_KEY` in your `.env` file is correct.
+- **Nostr Posting Issues**: Double-check that the `NOSTR_PRIVATE_KEY_...` variables in your `.env` file are correct (hex format, no `nsec` prefix) and correspond to the key names used in the `command` section of your `docker-compose.yml` services.
+- **Language Mismatch**: Ensure `BOT_PROCESSING_LANGUAGE` is correctly set in the `environment` section of each service in `docker-compose.yml` (`en` for English services, `ru` for Russian services).
+- **Build Issues**: If `docker-compose build` fails, check the output for errors. Ensure your `Dockerfile` is correct and your Go environment (if any local Go tools are invoked indirectly) is sound.
 
-1. **Permission Denied**
-   
-   If you encounter permission issues when executing the bot:
-   ```bash
-   chmod +x nostr_bot
-   ```
+For more general usage information, refer to the [Usage Guide](USAGE.md).
 
-2. **Missing Environment Variables**
-   
-   Ensure your `.env` file is in the same directory as the executable and contains all required variables.
+## Legacy Manual Setup (Deprecated)
 
-3. **CSV File Not Found**
-   
-   Verify that your CSV files are in the correct location and properly named.
+Setting up and running the bot manually without Docker is deprecated due to the complexities of managing environment variables (like `BOT_PROCESSING_LANGUAGE`) per instance. The Docker-based approach is strongly recommended.
 
-4. **Build Errors**
-   
-   Make sure to include all Go files in your build command:
-   ```bash
-   go build -o nostr_bot main.go metrics.go
-   ```
+If you must proceed with a manual setup:
 
-## Next Steps
+1.  **Install Go:** Ensure Go 1.18 or higher is installed.
+2.  **Build the application:** `go build -o nostr_bot main.go`
+3.  **Set Environment Variables:** You must manually set `BOT_API_ENDPOINT`, `BOT_API_KEY`, `BOT_PROCESSING_LANGUAGE` (to `en` or `ru`), and the environment variable holding your Nostr private key (e.g., `MY_NOSTR_KEY="actual_hex_key"`) in your shell environment *before* running the bot.
+4.  **Run the bot:** `./nostr_bot MY_NOSTR_KEY` (where `MY_NOSTR_KEY` is the *name* of the environment variable holding the private key).
 
-Once you've completed the installation, refer to the [Usage Guide](USAGE.md) for information on how to use the bot effectively. 
+This manual method lacks the per-service configuration benefits of Docker Compose, making it harder to manage different language instances reliably.
 
 [![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)

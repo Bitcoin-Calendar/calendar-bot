@@ -8,7 +8,7 @@
 
 ## Overview
 
-The Bitcoin Calendar Bot is a Go-based application that reads events from CSV files and publishes them to Nostr relays. This bot automates the posting of calendar events about Bitcoin history. The bot supports English and Russian versions.
+The Bitcoin Calendar Bot is a Go-based application that fetches historical Bitcoin event data from the Bitcoin Historical Events API and publishes these events to Nostr relays. This bot automates the posting of calendar events about Bitcoin history. The bot supports English and Russian language posts, determined by its runtime configuration.
 
 ## Quick Start with Docker (Recommended)
 
@@ -28,8 +28,13 @@ This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and 
         ```bash
         cp .env-example .env
         ```
-    *   Edit the `.env` file and add your Nostr private keys for production and testing:
+    *   Edit the `.env` file and add your API configuration and Nostr private keys for production and testing:
         ```env
+        # --- API Configuration (Required) ---
+        BOT_API_ENDPOINT="http://your_api_vps_ip:port/api" # Replace with your API's base URL
+        BOT_API_KEY="your_secret_api_key"             # Replace with your API key
+
+        # --- Nostr Private Keys (Required) ---
         # Production Keys
         NOSTR_PRIVATE_KEY_EN="your_english_specific_private_key_hex"
         NOSTR_PRIVATE_KEY_RU="your_russian_specific_private_key_hex"
@@ -37,24 +42,35 @@ This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and 
         # Test Keys
         NOSTR_PRIVATE_KEY_ENT="your_english_TEST_private_key_hex"
         NOSTR_PRIVATE_KEY_RUT="your_russian_TEST_private_key_hex"
+        
+        # --- Optional: Logging Configuration ---
+        # LOG_LEVEL="debug" # Or "info", "warn", "error"
+        # CONSOLE_LOG="true"  # Or "false"
+        # LOG_DIR="/app/logs" # Path inside the container, usually mapped to a host volume
         ```
-    *   You can also adjust `LOG_LEVEL`, `CONSOLE_LOG`, etc., in the `.env` file to override defaults set in `docker-compose.yml`.
+    *   The `BOT_PROCESSING_LANGUAGE` is set per-service in `docker-compose.yml` and should not be in the `.env` file.
 
 4.  **Build the Docker image**:
-    You need to build the image that all services will use. You can do this by building one of the services (it will build the shared image):
+    You need to build the image that all services will use.
     ```bash
-    docker-compose build nostr-bot-en 
-    # Or: docker-compose build (to build images for all services defined)
+    docker-compose build
+    # Or, to build a specific service's image if needed:
+    # docker-compose build nostr-bot-en 
     ```
 
 5.  **Running Test Instances Manually**:
-    To test your setup without posting to your main Nostr accounts, you can run the test services defined in `docker-compose.yml` (e.g., `nostr-bot-en-test`). These use specific test keys from your `.env` file. For detailed commands and information on test instance behavior (logging, shared files), please see the [Running Test Instances section in our Usage Guide](docs/USAGE.md#running-test-instances).
+    To test your setup without posting to your main Nostr accounts, you can run the test services defined in `docker-compose.yml` (e.g., `nostr-bot-en-test`, `nostr-bot-ru-test`). These use specific test keys from your `.env` file and are configured for the respective language. For detailed commands, please see the [Running Test Instances section in our Usage Guide](docs/USAGE.md#running-test-instances).
+    Example:
+    ```bash
+    docker-compose run --rm nostr-bot-en-test
+    docker-compose run --rm nostr-bot-ru-test
+    ```
 
 6.  **Set up Cron Jobs for Production Bots**:
-    The production bots (`nostr-bot-en`, `nostr-bot-ru`) are designed for scheduled runs using your system's cron. For detailed instructions on setting up cron jobs with `docker-compose`, including how Docker handles environment variables from the `.env` file for these services, please refer to the [Automated Operation section in our Usage Guide](docs/USAGE.md#automated-operation).
+    The production bots (`nostr-bot-en`, `nostr-bot-ru`) are designed for scheduled runs using your system's cron. Each service is pre-configured in `docker-compose.yml` to run for a specific language. For detailed instructions on setting up cron jobs with `docker-compose`, please refer to the [Automated Operation section in our Usage Guide](docs/USAGE.md#automated-operation).
 
 7.  **Viewing Logs**:
-    The bot generates log files for its operations. For test runs, output is also sent to the console by default. Detailed information on log file locations, naming, and rotation can be found in the [Log Files section of our Usage Guide](docs/USAGE.md#log-files).
+    The bot generates log files for its operations. For test runs, output is also sent to the console by default. Detailed information on log file locations and rotation can be found in the [Log Files section of our Usage Guide](docs/USAGE.md#log-files).
 
 8.  **Building after code changes**:
     If you update the bot's Go code, you need to rebuild the Docker image before your cron jobs or manual test runs pick up the changes:
@@ -63,10 +79,12 @@ This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and 
     docker-compose build
     ```
 
-The `docker-compose.yml` file defines production services (`nostr-bot-en`, `nostr-bot-ru`) for scheduled runs and test services (`nostr-bot-en-test`, `nostr-bot-ru-test`) for manual testing. All services use the same built image but different command parameters and environment variable expectations for keys.
+The `docker-compose.yml` file defines production services (`nostr-bot-en`, `nostr-bot-ru`) for scheduled runs and test services (`nostr-bot-en-test`, `nostr-bot-ru-test`) for manual testing. All services use the same built image but are configured with different environment variables (like `BOT_PROCESSING_LANGUAGE`) and command parameters (for Nostr private key environment variable names) to control their behavior.
 
 <details>
-<summary>Legacy Manual Setup (Without Docker)</summary>
+<summary>Legacy Manual Setup (Without Docker - Deprecated)</summary>
+
+This method is no longer recommended as the primary way to run the bot due to the API-driven nature and Docker-first approach for managing configurations like `BOT_PROCESSING_LANGUAGE`.
 
 1. **Clone the repository**
    ```bash
@@ -76,44 +94,50 @@ The `docker-compose.yml` file defines production services (`nostr-bot-en`, `nost
 
 2. **Build the application**
    ```bash
-   go build -o nostr_bot main.go metrics.go
+   go build -o nostr_bot main.go
    ```
 
 3. **Set up environment variables**
-   Create a `.env` file in the project directory:
+   Create a `.env` file in the project directory or ensure these are set in your environment:
+   ```env
+   # --- API Configuration (Required) ---
+   BOT_API_ENDPOINT="http://your_api_vps_ip:port/api" 
+   BOT_API_KEY="your_secret_api_key"
+
+   # --- Language for this instance (Required for manual run) ---
+   BOT_PROCESSING_LANGUAGE="en" # or "ru"
+
+   # --- Nostr Private Key (Required) ---
+   # The bot takes the NAME of the env var holding the key as a command argument.
+   # So, if you pass NOSTR_KEY_MY_ACCOUNT as an argument, set it here:
+   NOSTR_KEY_MY_ACCOUNT="your_private_key_hex"
    ```
-   NOSTR_PRIVATE_KEY_EN="your_english_specific_private_key_hex"
-   NOSTR_PRIVATE_KEY_RU="your_russian_specific_private_key_hex"
-   # Ensure these variable names (NOSTR_PRIVATE_KEY_EN, NOSTR_PRIVATE_KEY_RU)
-   # match what you use in the run command.
-   ```
-   Or copy the `.env-example` file and adjust its contents as needed. (Note: The `.env-example` has been updated for Docker usage, so ensure your manual setup aligns with how you use the private key variables).
-   For the manual run commands below, the bot expects the *name* of the environment variable (e.g., `NOSTR_PRIVATE_KEY_EN`) as a command-line argument. Ensure this variable, containing your actual private key, is set in your shell's environment *before* running the command. You can often achieve this by sourcing the `.env` file (e.g., `set -a; source .env; set +a` for bash/zsh if your `.env` file uses `KEY=VALUE` format) or by other means appropriate for your shell.
 
 4. **Run the bot**
+   The bot fetches events based on the current date, its API configuration, and the `BOT_PROCESSING_LANGUAGE` env var.
    ```bash
-   # For English events
-   LOG_DIR=./logs ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
-
-   # For Russian events
-   LOG_DIR=./logs ./nostr_bot events_ru.csv NOSTR_PRIVATE_KEY_RU
+   # Example for an English bot instance:
+   # Ensure BOT_API_ENDPOINT, BOT_API_KEY, BOT_PROCESSING_LANGUAGE="en", 
+   # and NOSTR_PRIVATE_KEY_FOR_EN (or your chosen name) are set in the environment.
+   LOG_DIR=./logs ./nostr_bot NOSTR_PRIVATE_KEY_FOR_EN 
+   # Replace NOSTR_PRIVATE_KEY_FOR_EN with the env var name for the specific key you want to use.
    ```
 
-### Automated Daily Posting with Cron
+### Automated Daily Posting with Cron (Manual Setup - Deprecated)
 
-To ensure the bot posts events daily, you can set up a cron job on your host system. The bot is designed to run, process events for the current day, and then exit.
-Cron jobs run with a minimal environment, so you must ensure that necessary environment variables (like `NOSTR_PRIVATE_KEY_EN` and `NOSTR_PRIVATE_KEY_RU`) are available within the cron execution scope. This might involve defining them directly in your crontab, sourcing a script that exports them, or other methods depending on your system.
+Cron jobs run with a minimal environment. Ensure `BOT_API_ENDPOINT`, `BOT_API_KEY`, `BOT_PROCESSING_LANGUAGE`, and the specific `NOSTR_PRIVATE_KEY_...` variable are available.
 
-Example cron entries:
+Example cron entries (adapt as needed):
 ```cron
 # Ensure the path to your project directory is correct.
-# Run Russian bot at 04:00 AM daily
-00 04 * * * cd /path/to/your/calendar-bot && LOG_DIR=./logs ./nostr_bot events_ru.csv NOSTR_PRIVATE_KEY_RU
 
-# Run English bot at 15:00 PM daily
-00 15 * * * cd /path/to/your/calendar-bot && LOG_DIR=./logs ./nostr_bot events_en.csv NOSTR_PRIVATE_KEY_EN
+# Run English bot instance at 04:00 AM daily
+00 04 * * * cd /path/to/your/calendar-bot && BOT_PROCESSING_LANGUAGE="en" LOG_DIR=./logs ./nostr_bot NOSTR_PRIVATE_KEY_EN
+
+# Run Russian bot instance at 05:00 AM daily
+00 05 * * * cd /path/to/your/calendar-bot && BOT_PROCESSING_LANGUAGE="ru" LOG_DIR=./logs ./nostr_bot NOSTR_PRIVATE_KEY_RU
 ```
-Find more details and examples of how to setup a cron job, including managing environment variables, in our Usage Guide.
+Consider using the Docker setup for cron jobs for easier management of environment variables per language.
 
 </details>
 
@@ -121,13 +145,12 @@ Find more details and examples of how to setup a cron job, including managing en
 
 - [Installation Guide](docs/INSTALLATION.md) - Detailed installation and setup instructions
 - [Usage Guide](docs/USAGE.md) - How to use the bot effectively and available configuration options
-- [CSV Format](docs/CSV_FORMAT.md) - How to structure your CSV event files
 - [Development Guide](docs/DEVELOPMENT.md) - Information for developers
 - [Roadmap](docs/ROADMAP.md) - Future development plans
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE.txt) file for details.
+This project is licensed under the MIT License. See the [LICENSE.txt](LICENSE.txt) file for details.
 
 ## Contributing
 

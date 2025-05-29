@@ -11,6 +11,7 @@ metrics/
 
 # Compiled executables
 nostr_bot
+calendar-bot
 
 # Operating system files
 .DS_Store
