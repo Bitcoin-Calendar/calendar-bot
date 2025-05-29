@@ -2,17 +2,17 @@
 
 This document outlines the development roadmap for the Bitcoin Calendar project, organized by quarter with specific goals and milestones.
 
-The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app with minimal to no dependency on third-party services. This will include storing historical events details, hosting an archive of all the webpages and a media server to store all necessary media files, running Nostr relay to broadcast events, launching a website to display events and allow visitors to interact with them. We are at the very beginning of the journey:
+The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app with minimal to no dependency on third-party services. This will include storing historical events details, hosting an archive of all the webpages and a media server for all related media files, running Nostr relay to broadcast events, launching a website to display events and allow visitors to interact with them and spinning up a historian chatbot that will be able to communicate with Nostr users in plane English. We are at the very beginning of the journey:
 
-![project-architecture](https://haven.bitcoin-calendar.org/4c7f2fecfa359e28941a006e3270b72f4299d6c15fea1196eea896a492703678.png)
+![project-architecture](https://haven.bitcoin-calendar.org/3feca195e808558617e7d3a6dbaf4f42b0ded77dc1ead229feb3fb097d79e049.webp)
 
 ## Q2 2025 (April-June)
 
-`Version: 1.1.0`
+`Version 1.0.0`
 
 ### Core Data & Content Enhancement
 - **English Event Population**
-  - Target: Expand from current March & April events to 500+ events across the year (prepare English version based on the extensive Russian version)
+  - Target: Expand to 500+ historical events in English
   - Add missing historical milestones
   - Standardize formatting and citation requirements
 - **Content Quality Improvements**
@@ -20,16 +20,16 @@ The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app
   - Include additional backup archive links to prevent link rot
   - Implement consistent formatting standards
 - **SQLite Database Migration**
-  - Migrate event data from CSV files to an SQLite database
-  - Update bot and API to use SQLite as the primary data source
-  - Define database schema and data integrity rules
-
+  - [x] Migrate event data from CSV files to an SQLite database
+  - [x] Update bot and API to use SQLite as the primary data source
+  - [x] Define database schema and data integrity rules
+  - [x] Implement API support for SQLite
 
 ### API Development
 - **Public API**
-  - Create RESTful API for accessing events from SQLite DB
-  - Implement rate limiting and authentication
-  - Develop comprehensive API documentation
+  - [x] Create RESTful API for accessing events from SQLite DB
+  - [x] Implement rate limiting and authentication
+  - [x] Develop comprehensive API documentation
 - **Integration Options**
   - Implement webhooks for event notifications
   - Develop widgets for embedding calendar events
@@ -55,20 +55,14 @@ The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app
 
 ## Q3 2025 (July-September)
 
-`Version: 1.2.0`
-
 ### Content Enhancement
 - **Metadata Optimization**
-  - Implement consistent hashtag strategy
+  - Implement consistent tagging strategy
   - Create event categories and tagging system
 
 - **Content Expansion**
   - Create thematic collections of related events
   - Develop "This Week in Bitcoin History" compilations and weekly statistics reports
-
-## Q4 2025 (October-December)
-
-`Version: 2.0.0`
 
 ### Web Presence Development
 - **Interactive Website**
@@ -76,31 +70,31 @@ The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app
   - Create search functionality
   - Add filtering by categories, tags, and dates
 
-## Q1 2026 (January-March)
+## Q4 2025 (October-December)
 
-`Version: 2.1.0`
+`Version: 2.0.0`
 
-### Mobile Experience
-- **Progressive Web App**
-  - Develop PWA for mobile access
-  - Implement offline functionality
-  - Create notification system for upcoming events
-  - Implement timeline visualization
-
-## Q2 2026 (April-June)
-
-`Version: 2.2.0`
-
-### Community Features
-- **User Accounts**
-  - Implement Nostr login for personalized experience
-  - Create user profiles with contribution history
-  - Develop preferences and notification settings
-
+### API & Community
+- **Public API**
+  - Release public API for developers
 - **Contribution System**
-  - Add event submission portal
-  - Implement community voting on submissions
-  - Create contributor recognition system
+  - Implement submission system for community contributions
+
+### Chatbot Development
+- **MCP Server & Initial Chatbot**
+  - Set up MCP server
+  - Start working on a Bitcoin history oriented chatbot implementation (relying on DVMCP for Nostr integration)
+
+## Q1-Q2 2026 (January-June)
+
+### Mobile & Advanced Features
+- **Mobile-Friendly Experience**
+  - Create mobile-friendly experience (e.g., Progressive Web App)
+- **Nostr Login**
+  - Implement Nostr login
+- **Chatbot Enhancements**
+  - Develop LLM based chatbot
+  - Create Nostr Historian bot
 
 ## Long-term Vision
 

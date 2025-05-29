@@ -24,6 +24,9 @@ WORKDIR /app
 # Create a non-root user and group
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
+# Install strace
+RUN apk add --no-cache strace
+
 # Copy the built binary from the builder stage
 COPY --from=builder /app/nostr_bot /app/nostr_bot
 
