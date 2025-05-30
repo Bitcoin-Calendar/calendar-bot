@@ -4,7 +4,7 @@ This document outlines the development roadmap for the Bitcoin Calendar project,
 
 The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app with minimal to no dependency on third-party services. This will include storing historical events details, hosting an archive of all the webpages and a media server for all related media files, running Nostr relay to broadcast events, launching a website to display events and allow visitors to interact with them and spinning up a historian chatbot that will be able to communicate with Nostr users in plane English. We are at the very beginning of the journey:
 
-![project-architecture](https://haven.bitcoin-calendar.org/3feca195e808558617e7d3a6dbaf4f42b0ded77dc1ead229feb3fb097d79e049.webp)
+![project-architecture](https://haven.bitcoin-calendar.org/4d4f81403e39c0c4a454a35cb6913a9420539c9665cb5240fdaff4e27b1e5176.webp)
 
 ## Q2 2025 (April-June)
 

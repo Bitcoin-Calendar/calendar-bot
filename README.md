@@ -4,7 +4,7 @@
 
 ### Archiving and relaying every Bitcoin milestone 
 
-![bitcal-logo-wide](https://haven.bitcoin-calendar.org/9db5c5d32dff9f016bda92280deb4e14e137856704499827f5f0e6d83d7cb326.webp)
+![bitcal-structure](https://haven.bitcoin-calendar.org/4d4f81403e39c0c4a454a35cb6913a9420539c9665cb5240fdaff4e27b1e5176.webp)
 
 ## Overview
 
