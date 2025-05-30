@@ -18,6 +18,7 @@ The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app
 - **Content Quality Improvements**
   - [ ] Add media files for all events (images, charts)
   - [ ] Implement consistent formatting standards
+  - [x] Add kind 20 events posting (NIP-68) 
 - **SQLite Database Migration**
   - [x] Migrate event data from CSV files to an SQLite database
   - [x] Update bot and API to use SQLite as the primary data source

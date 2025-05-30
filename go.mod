@@ -1,4 +1,4 @@
-module simple-nostr-bot
+module calendar-bot
 
 go 1.24.1
 

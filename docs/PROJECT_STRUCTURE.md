@@ -6,7 +6,22 @@ This document provides an overview of the Bitcoin Calendar Bot project structure
 
 ```
 nostr-calendar-bot/
-├── main.go              # Main application logic: API event fetching, processing, Nostr publishing, logging
+├── main.go              # Application entry point, orchestrates internal modules
+├── internal/            # Internal application logic, not intended for external import
+│   ├── api/             # Client for interacting with the Bitcoin Calendar events API
+│   │   └── client.go
+│   ├── config/          # Configuration loading and validation
+│   │   └── config.go
+│   ├── logging/         # Logging setup and management
+│   │   └── setup.go
+│   ├── metrics/         # Metrics collection
+│   │   └── collector.go
+│   ├── models/          # Shared data structures (e.g., APIEvent)
+│   │   └── event.go
+│   └── nostr/           # Nostr event creation and publishing
+│       ├── publisher.go   # Core Nostr event publishing logic
+│       ├── kind1.go       # Kind 1 (text) event creation
+│       └── kind20.go      # Kind 20 (NIP-68 picture) event creation & image validation
 ├── Dockerfile           # Defines the Docker image for building and running the bot
 ├── docker-compose.yml   # Defines Docker Compose services for different bot instances (EN, RU, tests)
 ├── .env-example         # Example environment variables file
@@ -27,18 +42,34 @@ nostr-calendar-bot/
 
 (Note: Event CSV files such as `events_en.csv` or `events_ru.csv` are no longer used by the bot as events are fetched dynamically from an API.)
 
-## Key Files
+## Key Files and Directories
 
 ### `main.go`
 
-Contains the core application logic:
+The main application entry point. Its primary responsibilities now include:
+-   Parsing command-line arguments (e.g., for Nostr private key environment variable name).
+-   Initializing and orchestrating the various internal modules:
+    -   Loading configuration (`internal/config`).
+    -   Setting up logging (`internal/logging`).
+    -   Initializing the API client (`internal/api`).
+    -   Initializing the metrics collector (`internal/metrics`).
+    -   Initializing the Nostr event publisher and handlers (`internal/nostr`).
+-   Managing the main application loop: fetching events via the API client, processing them, and triggering Nostr publications for Kind 1 and Kind 20 events.
+-   Handling graceful shutdown and signal processing (if implemented).
 
--   Application entry point and command-line argument processing (for Nostr private key environment variable name).
--   Loading and validation of environment variables (`BOT_API_ENDPOINT`, `BOT_API_KEY`, `BOT_PROCESSING_LANGUAGE`, etc.).
--   Fetching events from the configured API based on current date and language.
--   JSON parsing of API responses.
--   Nostr event creation and publishing to relays.
--   Logging system configuration and management using Zerolog and Lumberjack.
+### `internal/` Directory
+
+This directory houses the core logic of the application, organized into distinct packages:
+
+-   **`internal/config`**: Manages application configuration. It loads settings from environment variables and `.env` files, validates them, and provides a `Config` struct to the rest of the application.
+-   **`internal/api`**: Contains the `Client` for interacting with the external Bitcoin Calendar events API. It handles request construction, sending HTTP requests, parsing responses, and includes retry logic.
+-   **`internal/logging`**: Responsible for setting up the global logger (using `zerolog`). It configures log levels, output (console/file), and log rotation (using `lumberjack`).
+-   **`internal/metrics`**: Defines the `Collector` for tracking various application metrics, such as the number of events fetched, successfully published (Kind 1 and Kind 20), or failed. It includes methods to increment counters and log summaries.
+-   **`internal/models`**: Contains shared data structures used throughout the application, such as `APIEvent` (representing an event from the API) and `APIResponseWrapper` (for handling the API's response structure).
+-   **`internal/nostr`**: Encapsulates all logic related to Nostr.
+    -   `publisher.go`: Implements `EventPublisher` which handles the actual signing and publishing of `nostr.Event` objects to multiple relays, including connection management and timeouts.
+    -   `kind1.go`: Contains `CreateKind1NostrEvent` for constructing Kind 1 (text-based) Nostr events from `APIEvent` data.
+    -   `kind20.go`: Contains `CreateKind20NostrEvent` for constructing NIP-68 Kind 20 (picture-based) Nostr events. This includes logic for image URL validation (`ImageValidator`), media type checking, and assembling the specific tags required by NIP-68.
 
 ### `Dockerfile`
 
@@ -72,31 +103,26 @@ The documentation is organized into separate files for clarity:
 -   `docs/PROJECT_STRUCTURE.md`: This file, explaining the codebase structure.
 -   `docs/ROADMAP.md`: Future development plans.
 
-## Code Organization
+## Code Organization (Deprecated - Refer to `internal/` directory structure)
 
-### Main Application Flow (within `main.go`)
+The primary application flow is orchestrated by `main.go`, which utilizes the various packages within the `internal/` directory.
 
-1.  **Initialization**:
-    *   Parse command-line argument (Nostr private key env var name).
-    *   Load environment variables (API config, language, logging settings).
-    *   Configure logging (Zerolog with Lumberjack for rotation).
-2.  **Event Fetching & Processing**:
-    *   Call `fetchEventsFromAPI()` with current date and language to get events.
-    *   Iterate through fetched events that match today's date.
-    *   For each valid event, call `publishEvent()`.
-3.  **Event Publishing** (`publishEvent()`):
-    *   Format event content (title, description, media, references).
-    *   Create Nostr event structure with tags.
-    *   Sign the event.
-    *   Attempt to publish to all configured relays.
-
-### Important Functions
-
-#### In `main.go`:
-
--   `main()`: Entry point and orchestration.
--   `fetchEventsFromAPI()`: Handles API communication to retrieve events.
--   `publishEvent()`: Manages the creation, signing, and relaying of a single Nostr event.
+1.  **Initialization (in `main.go`)**:
+    *   Load configuration using `config.LoadConfig()`.
+    *   Set up logger using `logging.Setup()`.
+    *   Initialize API client using `api.NewClient()`.
+    *   Initialize metrics collector using `metrics.NewCollector()`.
+    *   Initialize Nostr publisher using `nostr.NewEventPublisher()`.
+    *   Initialize image validator using `nostr.NewImageValidator()`.
+2.  **Main Loop (in `main.go`)**:
+    *   Determine current date and configured language.
+    *   Fetch events using the API client's `FetchEvents()` method.
+    *   For each fetched `APIEvent`:
+        *   Attempt to create and publish a Kind 1 event using `nostr.CreateKind1NostrEvent()` and the `EventPublisher`. Update Kind 1 metrics.
+        *   If Kind 1 was successful, attempt to create and publish a Kind 20 event (if applicable, based on `APIEvent.Media`) using `nostr.CreateKind20NostrEvent()` and the `EventPublisher`. Update Kind 20 metrics.
+        *   Implement a wait period if necessary (e.g., after successful Kind 1 publication).
+3.  **Metrics Summary (in `main.go`)**:
+    *   Log a summary of collected metrics at the end of the run using `metricsCollector.LogSummary()`.
 
 ## Dependencies
 

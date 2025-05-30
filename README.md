@@ -8,7 +8,16 @@
 
 ## Overview
 
-The Bitcoin Calendar Bot is a Go-based application that fetches historical Bitcoin event data from the Bitcoin Historical Events API and publishes these events to Nostr relays. This bot automates the posting of calendar events about Bitcoin history. The bot supports English and Russian language posts, determined by its runtime configuration.
+The Bitcoin Calendar Bot is a Go-based application that fetches historical Bitcoin event data from the Bitcoin Historical Events API and publishes these events to Nostr relays. This bot automates the posting of calendar events about Bitcoin history.
+
+Key functionalities include:
+*   Fetching events from a configurable API endpoint.
+*   Publishing events as Nostr Kind 1 (text-based) notes.
+*   **NEW**: Publishing events as Nostr NIP-68 Kind 20 (picture-based) notes for events with associated images.
+*   Support for multiple languages (e.g., English, Russian), configurable at runtime.
+*   Metrics collection for monitoring event posting success and failures.
+
+The project has recently undergone a significant refactoring to improve modularity and maintainability. Core functionalities such as configuration management, API interaction, logging, metrics collection, and Nostr event publishing have been moved into dedicated packages within an `internal` directory.
 
 ## Quick Start with Docker (Recommended)
 
@@ -80,6 +89,19 @@ This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and 
     ```
 
 The `docker-compose.yml` file defines production services (`nostr-bot-en`, `nostr-bot-ru`) for scheduled runs and test services (`nostr-bot-en-test`, `nostr-bot-ru-test`) for manual testing. All services use the same built image but are configured with different environment variables (like `BOT_PROCESSING_LANGUAGE`) and command parameters (for Nostr private key environment variable names) to control their behavior.
+
+The main application logic is now organized within the `internal` directory:
+*   `internal/config`: Handles loading and validation of application configuration from environment variables and a `.env` file.
+*   `internal/api`: Contains the client for interacting with the Bitcoin Calendar events API, including event fetching and retry logic.
+*   `internal/logging`: Manages logger setup and configuration (using zerolog), supporting console and file-based logging.
+*   `internal/metrics`: Provides a collector for tracking application-specific metrics, such as the number of events processed and published (for both Kind 1 and Kind 20).
+*   `internal/models`: Defines shared data structures used across the application, like `APIEvent` and `APIResponseWrapper`.
+*   `internal/nostr`: Handles all Nostr-related operations.
+    *   `publisher.go`: Core event publishing logic to relays.
+    *   `kind1.go`: Logic for creating Kind 1 (text) Nostr events.
+    *   `kind20.go`: Logic for creating NIP-68 Kind 20 (picture) Nostr events, including image validation.
+
+The `main.go` file now serves as the entry point, orchestrating these components.
 
 <details>
 <summary>Legacy Manual Setup (Without Docker - Deprecated)</summary>

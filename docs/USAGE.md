@@ -4,7 +4,7 @@ This guide explains how to use the Bitcoin Calendar Bot effectively, primarily f
 
 ## Basic Operation Principle
 
-The Bitcoin Calendar Bot fetches historical Bitcoin events for the current day (month and day) from a configured API endpoint. It then posts these events to Nostr relays using a specified Nostr private key. The language of the events (e.g., English or Russian) is determined by the `BOT_PROCESSING_LANGUAGE` environment variable, which is pre-configured for each service in the `docker-compose.yml` file.
+The Bitcoin Calendar Bot fetches historical Bitcoin events for the current day (month and day) from a configured API endpoint. It then posts these events to Nostr relays using a specified Nostr private key. Events are posted as Kind 1 (text notes). If an event includes a valid image URL in its `Media` field, the bot will also attempt to post a NIP-68 Kind 20 (picture note) event for that image, in addition to the Kind 1 text note. The language of the events (e.g., English or Russian) is determined by the `BOT_PROCESSING_LANGUAGE` environment variable, which is pre-configured for each service in the `docker-compose.yml` file.
 
 ## Running the Bot with Docker Compose
 
@@ -73,14 +73,18 @@ Log files are automatically rotated when they reach 10MB, with the following set
 
 The bot performs the following steps:
 
-1.  Reads its configuration (API endpoint, API key, Nostr private key name, processing language).
-2.  Fetches events for the current calendar day (month and day) from the API, for the configured language.
-3.  For each matching event:
-    *   Generates a unique request ID for tracking.
-    *   Formats the event content.
-    *   Signs the event with the appropriate Nostr private key.
-    *   Publishes the event to multiple pre-configured Nostr relays.
-    *   If multiple events are found for the day, it waits 30 minutes after a successful multi-relay publish attempt before processing the next event.
+1.  Reads its configuration (API endpoint, API key, Nostr private key name, processing language, relays, etc.) using the `internal/config` module.
+2.  Sets up logging using the `internal/logging` module.
+3.  Initializes clients and services: API client (`internal/api`), metrics collector (`internal/metrics`), Nostr event publisher and image validator (`internal/nostr`).
+4.  Fetches events for the current calendar day (month and day) from the API, for the configured language, using the API client.
+5.  For each matching `APIEvent`:
+    *   Generates a unique request ID for tracking (this is part of the logger context usually).
+    *   **Kind 1 Event**: Creates a Kind 1 (text) Nostr event using `nostr.CreateKind1NostrEvent()`.
+    *   Publishes the Kind 1 event to configured Nostr relays via `eventPublisher.PublishEvent()`. Updates Kind 1 metrics.
+    *   **Kind 20 Event (if applicable)**: If the `APIEvent.Media` field contains a valid image URL, it creates a NIP-68 Kind 20 (picture) Nostr event using `nostr.CreateKind20NostrEvent()` (which includes image validation).
+    *   Publishes the Kind 20 event to relays via `eventPublisher.PublishEvent()`. Updates Kind 20 metrics.
+    *   If multiple events are found for the day, and the Kind 1 event for the current API event was successfully published to at least one relay, it waits 30 minutes before processing the next API event from the list.
+6.  Logs a summary of collected metrics using `metricsCollector.LogSummary()`.
 
 ## Running Test Instances
 
