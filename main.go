@@ -126,7 +126,7 @@ func main() {
 	if err != nil {
 		log.Error().Err(err).Msg("Fatal: Failed to fetch events from API. Bot will exit.")
 		metricsCollector.LogSummary() // Use new metricsCollector
-		metricsDir := "metrics" // This is also the package name, maybe rename dir?
+		metricsDir := "metrics-logs" // This is also the package name, maybe rename dir?
 		if mkDirErr := os.MkdirAll(metricsDir, 0755); mkDirErr != nil {
 			log.Error().Err(mkDirErr).Str("directory", metricsDir).Msg("Failed to create metrics directory for error export")
 		}
@@ -239,7 +239,7 @@ func main() {
 	log.Info().Msg("Bot execution finished for today.")
 	metricsCollector.LogSummary() // Use new metricsCollector
 
-	metricsDir := "metrics"
+	metricsDir := "metrics-logs"
 	if err := os.MkdirAll(metricsDir, 0755); err != nil {
 		log.Error().Err(err).Str("directory", metricsDir).Msg("Failed to create metrics directory for final export")
 	}
