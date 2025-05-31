@@ -50,18 +50,18 @@ The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app
 
 ### Content Enhancement
 - **Metadata Optimization**
-  - Implement consistent tagging strategy to match Nostr standards
-  - Create event categories and tagging system
+  - [ ] Implement consistent tagging strategy to match Nostr standards
+  - [ ] Create event categories and tagging system
 
 - **Content Expansion**
-  - Create thematic collections of related events
-  - Develop "This Week in Bitcoin History" compilations and weekly statistics reports
+  - [ ] Create thematic collections of related events
+  - [ ] Develop "This Week in Bitcoin History" compilations and weekly statistics reports
 
 ### Web Presence Development
 - **Interactive Website**
-  - Develop responsive frontend for browsing events
-  - Create search functionality
-  - Add filtering by categories, tags, dates and ranges
+  - [ ] Develop responsive frontend for browsing events
+  - [ ] Create search functionality
+  - [ ] Add filtering by categories, tags, dates and ranges
 
 ## Q4 2025 (October-December)
 
@@ -69,46 +69,46 @@ The goal of the Bitcoin Calendar project is to become a FOSS, self sovereign app
 
 ### API & Community
 - **Public API**
-  - Release public API for developers
+  - [ ] Release public API for developers
 - **Integration Options**
-  - Implement webhooks for event notifications
-  - Develop widgets for embedding calendar events
-  - Create RSS feeds for various categories
+  - [ ] Implement webhooks for event notifications
+  - [ ] Develop widgets for embedding calendar events
+  - [ ] Create RSS feeds for various categories
 - **Nostr Login**
-  - Implement Nostr login
+  - [ ] Implement Nostr login
 - **Contribution System**
-  - Implement submission system for community contributions (via Nostr)
+  - [ ] Implement submission system for community contributions (via Nostr)
 
 ### Chatbot Development
 - **MCP Server & Initial Chatbot**
-  - Set up MCP server
-  - Integrate SQLite-vec populated with all archived data to ensure fast and effective LLM search across the database
-  - Start working on a Bitcoin history oriented chatbot implementation (relying on DVMCP for Nostr integration)
+  - [ ] Set up MCP server
+  - [ ] Integrate SQLite-vec populated with all archived data to ensure fast and effective LLM search across the database
+  - [ ] Start working on a Bitcoin history oriented chatbot implementation (relying on DVMCP for Nostr integration)
 
 ## Q1-Q2 2026 (January-June)
 
 ### Mobile & Advanced Features
 - **Mobile-Friendly Experience**
-  - Create mobile-friendly experience (e.g., Progressive Web App)
+  - [ ] Create mobile-friendly experience (e.g., Progressive Web App)
 - **Chatbot Enhancements**
-  - Develop LLM based chatbot
-  - Create Nostr Historian bot
+  - [ ] Develop LLM based chatbot
+  - [ ] Create Nostr Historian bot
 
 ## Long-term Vision
 
 ### Educational Resources
 - **Learning Paths**
-  - Develop curated learning paths based on historical events and [21ideas](https://21ideas.org/en/) Bitcoin knowledge base
-  - Create downloadable educational materials to complement calendar format
+  - [ ] Develop curated learning paths based on historical events and [21ideas](https://21ideas.org/en/) Bitcoin knowledge base
+  - [ ] Create downloadable educational materials to complement calendar format
 
 ### Integration Ecosystem
 - **Calendar Integration**
-  - Calendar subscription service (iCal, Google Calendar)
-  - Event reminder system
+  - [ ] Calendar subscription service (iCal, Google Calendar)
+  - [ ] Event reminder system
 
 ### Advanced Features
 - **Content Exploration**
-  - Develop visualization of historical connections
+  - [ ] Develop visualization of historical connections
 
 
 [![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)

@@ -7,7 +7,7 @@
 logs/
 
 # Metrics files
-metrics/
+metrics-logs/
 
 # Compiled executables
 nostr_bot
