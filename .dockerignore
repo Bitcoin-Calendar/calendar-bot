@@ -1,19 +1,24 @@
-# From .gitignore
-.env
-**/*.log
-*.log
-logs/
-metrics/
-nostr_bot
-.DS_Store
-Thumbs.db
+# Git directory
+.git/
+
+# IDE and OS specific
 .vscode/
 .idea/
-tmp/
+.DS_Store
+Thumbs.db
 
-# Docker specific
-Dockerfile
-.dockerignore
+# Local environment files
+.env
 
-# Git directory
-.git/ 
+# Log files and directories
+*.log
+logs/
+
+# Metrics files and directories (if generated locally)
+metrics/
+
+# Local build artifacts
+nostr_bot
+
+# Temporary files/folders
+tmp/ 

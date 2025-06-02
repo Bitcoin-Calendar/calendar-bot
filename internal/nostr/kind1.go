@@ -1,10 +1,10 @@
 package nostr
 
 import (
-	"fmt"
 	"strings"
 
 	"calendar-bot/internal/models"
+
 	"github.com/nbd-wtf/go-nostr"
 	// "github.com/rs/zerolog" // Logger not directly used here, but by caller
 )
@@ -17,9 +17,15 @@ func CreateKind1NostrEvent(apiEvent models.APIEvent, processedTags []string, pro
 	finalMessageBuilder.WriteString("\n\n")
 	finalMessageBuilder.WriteString(apiEvent.Description)
 
-	if apiEvent.Media != "" {
-		finalMessageBuilder.WriteString("\n\n")
-		finalMessageBuilder.WriteString(apiEvent.Media)
+	// Append all media URLs if present
+	if len(apiEvent.Media) > 0 {
+		finalMessageBuilder.WriteString("\n\nMedia:") // Add a header for media links
+		for _, mediaURL := range apiEvent.Media {
+			if mediaURL != "" { // Ensure the URL is not empty
+				finalMessageBuilder.WriteString("\n")
+				finalMessageBuilder.WriteString(mediaURL)
+			}
+		}
 	}
 
 	if len(processedReferences) > 0 {
@@ -30,14 +36,14 @@ func CreateKind1NostrEvent(apiEvent models.APIEvent, processedTags []string, pro
 			}
 			// The spec didn't explicitly ask for "- " prefix here, but it was in original code.
 			// Keeping it for now. Can be removed if not desired for Kind 1.
-			finalMessageBuilder.WriteString(fmt.Sprintf("- %s", ref)) 
+			finalMessageBuilder.WriteString(ref)
 		}
 	}
 	message := finalMessageBuilder.String()
 
 	// Nostr tags
 	// Default tags could be defined elsewhere or passed in if they become configurable.
-	defaultTags := []string{"bitcoin", "history", "onthisday", "calendar", "btc"}
+	defaultTags := []string{"bitcoin", "history", "onthisday", "calendar", "bitcoincalendar", "bitcoinhistory"}
 	allEventTags := nostr.Tags{}
 
 	for _, t := range defaultTags {
@@ -60,4 +66,4 @@ func CreateKind1NostrEvent(apiEvent models.APIEvent, processedTags []string, pro
 
 	// The event is not signed here. Signing is handled by the EventPublisher.
 	return ev, nil
-} 
+}

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"calendar-bot/internal/models"
+
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/rs/zerolog/log" // For logging within image validation
 )
@@ -137,9 +138,15 @@ func (k20 *Kind20EventData) ToNostrEvent() (nostr.Event, error) {
 	if k20.Description != "" {
 		allTags = append(allTags, nostr.Tag{"summary", k20.Description})
 	}
-	
+
 	// Media type tag
 	allTags = append(allTags, nostr.Tag{"m", k20.MediaType})
+
+	// Default tags
+	defaultTags := []string{"bitcoin", "history", "onthisday", "calendar", "bitcoincalendar", "bitcoinhistory"}
+	for _, t := range defaultTags {
+		allTags = append(allTags, nostr.Tag{"t", strings.ToLower(t)})
+	}
 
 	// Preserve existing hashtags (`t` tags)
 	for _, ht := range k20.Hashtags {
@@ -179,41 +186,56 @@ func (k20 *Kind20EventData) ToNostrEvent() (nostr.Event, error) {
 // It uses ImageValidator for image checks.
 // Returns the event, a boolean indicating if it qualified, and an error if creation failed.
 func CreateKind20NostrEvent(
-	apiEvent models.APIEvent, 
-	processedTags []string, 
-	processedReferences []string, 
+	apiEvent models.APIEvent,
+	processedTags []string,
+	processedReferences []string,
 	validator *ImageValidator,
 ) (event nostr.Event, qualified bool, err error) {
 
-	if apiEvent.Media == "" {
-		log.Debug().Uint("apiEventID", apiEvent.ID).Msg("Kind 20: Skipped, no media URL.")
+	if len(apiEvent.Media) == 0 {
+		log.Debug().Uint("apiEventID", apiEvent.ID).Msg("Kind 20: Skipped, no media URLs provided.")
 		return nostr.Event{}, false, nil
 	}
 
-	if !validator.IsValidImageURL(apiEvent.Media) {
-		log.Warn().Uint("apiEventID", apiEvent.ID).Str("mediaURL", apiEvent.Media).Msg("Kind 20: Skipped, invalid or unsupported image format.")
-		// Metric for invalid image format should be incremented by caller if needed
-		return nostr.Event{}, false, nil // Not an error, just not qualified
+	var validMediaURL string
+	var mediaType string
+
+	for _, mediaURL := range apiEvent.Media {
+		if mediaURL == "" {
+			continue
+		}
+		if validator.IsValidImageURL(mediaURL) {
+			currentMediaType := validator.GetMediaType(mediaURL)
+			if currentMediaType != "" {
+				// Optional: Validate image accessibility. This makes an external HTTP call.
+				// if errAccessibility := validator.ValidateImageAccessibility(mediaURL); errAccessibility != nil {
+				// 	log.Warn().Err(errAccessibility).Uint("apiEventID", apiEvent.ID).Str("mediaURL", mediaURL).Msg("Kind 20: Skipping this media item, not accessible.")
+				// 	continue // Try next media URL
+				// }
+
+				validMediaURL = mediaURL
+				mediaType = currentMediaType
+				log.Info().Uint("apiEventID", apiEvent.ID).Str("selectedMediaURL", validMediaURL).Msg("Kind 20: Selected first valid media URL for event.")
+				break // Found a valid media URL, use this one
+			} else {
+				log.Warn().Uint("apiEventID", apiEvent.ID).Str("mediaURL", mediaURL).Msg("Kind 20: Media URL valid but could not determine media type.")
+			}
+		} else {
+			log.Warn().Uint("apiEventID", apiEvent.ID).Str("mediaURL", mediaURL).Msg("Kind 20: Skipped media item, invalid or unsupported image format.")
+		}
 	}
 
-	mediaType := validator.GetMediaType(apiEvent.Media)
-	if mediaType == "" { // Should be redundant if IsValidImageURL passed, but good check
-		log.Warn().Uint("apiEventID", apiEvent.ID).Str("mediaURL", apiEvent.Media).Msg("Kind 20: Skipped, could not determine media type.")
+	if validMediaURL == "" {
+		log.Warn().Uint("apiEventID", apiEvent.ID).Interface("mediaURLs", apiEvent.Media).Msg("Kind 20: Skipped, no valid media URL found in the provided list that meets criteria.")
 		return nostr.Event{}, false, nil
 	}
 
-	// Optional: Validate image accessibility. This makes an external HTTP call.
-	// if err := validator.ValidateImageAccessibility(apiEvent.Media); err != nil {
-	// 	log.Warn().Err(err).Uint("apiEventID", apiEvent.ID).Str("mediaURL", apiEvent.Media).Msg("Kind 20: Skipped, image not accessible.")
-	// 	// Metric for image accessibility failure should be incremented by caller
-	// 	return nostr.Event{}, false, nil // Not an error, just not qualified
-	// }
-
+	// The rest of the function now uses validMediaURL and mediaType
 	k20Data := Kind20EventData{
 		Title:       apiEvent.Title,
 		Description: apiEvent.Description, // Used for summary tag
-		ImageURL:    apiEvent.Media,
-		MediaType:   mediaType,
+		ImageURL:    validMediaURL,        // Use the validated media URL
+		MediaType:   mediaType,            // Use the determined media type
 		Hashtags:    processedTags,
 		References:  processedReferences,
 		EventDate:   apiEvent.Date.Format("2006-01-02"),
@@ -227,4 +249,4 @@ func CreateKind20NostrEvent(
 
 	log.Info().Uint("apiEventID", apiEvent.ID).Str("nostrEventID", nostrEv.ID).Msg("Kind 20: Event created and qualified for publishing.")
 	return nostrEv, true, nil
-} 
+}

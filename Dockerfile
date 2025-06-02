@@ -1,19 +1,34 @@
 # Stage 1: Build the application
 FROM golang:1.24-alpine AS builder
 
-# Set the Current Working Directory inside the container
+# Explicitly set GOROOT and GOPATH (Alpine Go image should do this, but for safety)
+ENV GOROOT /usr/local/go
+ENV GOPATH /go
+ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
+
 WORKDIR /app
 
-# We want to populate the module cache based on the go.{mod,sum} files.
-COPY go.mod go.sum ./
+# Copy all source code, including go.mod, go.sum, main.go, and internal/
+# This ensures that the module structure is fully present before any go commands are run in this context.
+COPY . /app/
+
+# Now, all go commands will run from the root of the copied module.
+# Go should correctly interpret this as the module 'calendar-bot'
+# because go.mod is at /app/go.mod.
+
 RUN go mod download
+RUN go mod tidy
 
-# Copy the source code
-COPY . .
+# Explicitly set Go module mode (should be default but good for safety)
+ENV GO111MODULE=on
 
-# Build the Go app
-# The output will be in /app/nostr_bot
-RUN go build -o /app/nostr_bot main.go
+# Before building, let's list the contents of /app and /app/internal to be sure
+RUN ls -R /app
+
+# Build the application. Go should resolve "calendar-bot/internal/metrics"
+# relative to the module root at /app.
+RUN go build -v -o /app/nostr_bot .
+# Added -v for verbose output from the build command
 
 # Stage 2: Create the final lightweight image
 FROM alpine:latest
