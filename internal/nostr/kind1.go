@@ -19,24 +19,25 @@ func CreateKind1NostrEvent(apiEvent models.APIEvent, processedTags []string, pro
 
 	// Append all media URLs if present
 	if len(apiEvent.Media) > 0 {
-		finalMessageBuilder.WriteString("\n\nMedia:") // Add a header for media links
+		finalMessageBuilder.WriteString("\n")
 		for _, mediaURL := range apiEvent.Media {
 			if mediaURL != "" { // Ensure the URL is not empty
+				// Clean up "[\"url\"]" to "url"
+				cleanURL := strings.TrimPrefix(mediaURL, "[\"")
+				cleanURL = strings.TrimSuffix(cleanURL, "\"]")
 				finalMessageBuilder.WriteString("\n")
-				finalMessageBuilder.WriteString(mediaURL)
+				finalMessageBuilder.WriteString(cleanURL)
 			}
 		}
 	}
 
 	if len(processedReferences) > 0 {
-		finalMessageBuilder.WriteString("\n\n")
-		for i, ref := range processedReferences {
-			if i > 0 {
-				finalMessageBuilder.WriteString("\n")
-			}
-			// The spec didn't explicitly ask for "- " prefix here, but it was in original code.
-			// Keeping it for now. Can be removed if not desired for Kind 1.
-			finalMessageBuilder.WriteString(ref)
+		finalMessageBuilder.WriteString("\n")
+		for _, ref := range processedReferences {
+			// Remove the "- " prefix from references as it's not desired.
+			cleanRef := strings.TrimPrefix(ref, "- ")
+			finalMessageBuilder.WriteString("\n")
+			finalMessageBuilder.WriteString(cleanRef)
 		}
 	}
 	message := finalMessageBuilder.String()
