@@ -25,6 +25,20 @@ import (
 
 // APIEvent struct removed, moved to internal/models/event.go
 
+// cleanURL removes unwanted characters and formatting from a URL string.
+func cleanURL(url string) string {
+	// First, remove leading/trailing whitespace
+	cleaned := strings.TrimSpace(url)
+	// Remove potential JSON array wrapping for single items
+	cleaned = strings.TrimPrefix(cleaned, "[\"")
+	cleaned = strings.TrimSuffix(cleaned, "\"]")
+	// Remove list-like prefixes
+	cleaned = strings.TrimPrefix(cleaned, "- ")
+	// Trim space again in case the prefixes left any
+	cleaned = strings.TrimSpace(cleaned)
+	return cleaned
+}
+
 // getCurrentDirectory gets the current working directory
 func getCurrentDirectory() string {
 	dir, err := os.Getwd()
@@ -148,17 +162,20 @@ func main() {
 			eventSpecificLogger := log.With().Str("requestID", requestID).Uint("apiEventID", apiEvent.ID).Logger()
 			eventSpecificLogger.Info().Str("eventTitle", apiEvent.Title).Msg("Processing matching API event for today")
 
-			// Parse tags and references once for both kind 1 and kind 20
+			// Clean up media and reference URLs
+			for i := range apiEvent.Media {
+				apiEvent.Media[i] = cleanURL(apiEvent.Media[i])
+			}
+			currentEventAPIReferences := make([]string, 0, len(apiEvent.References))
+			for _, ref := range apiEvent.References {
+				currentEventAPIReferences = append(currentEventAPIReferences, cleanURL(ref))
+			}
+
+			// Parse tags once for both kind 1 and kind 20
 			var currentEventAPITags []string
 			if apiEvent.Tags != "" && apiEvent.Tags != "[]" {
 				if err := json.Unmarshal([]byte(apiEvent.Tags), &currentEventAPITags); err != nil {
 					eventSpecificLogger.Warn().Err(err).Str("tagsString", apiEvent.Tags).Msg("Failed to unmarshal event Tags. Proceeding with no API tags.")
-				}
-			}
-			var currentEventAPIReferences []string
-			if apiEvent.References != "" && apiEvent.References != "[]" {
-				if err := json.Unmarshal([]byte(apiEvent.References), &currentEventAPIReferences); err != nil {
-					eventSpecificLogger.Warn().Err(err).Str("referencesString", apiEvent.References).Msg("Failed to unmarshal event References. Proceeding with no API references.")
 				}
 			}
 

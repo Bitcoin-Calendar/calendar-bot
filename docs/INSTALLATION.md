@@ -8,7 +8,7 @@ This guide provides detailed instructions for installing and setting up the Bitc
 - [Docker Compose](https://docs.docker.com/compose/install/) installed
 - Git
 - API Endpoint and Key for the Bitcoin Historical Events API
-- Nostr private keys for posting (e.g., one for English posts, one for Russian posts, and test keys)
+- Nostr private keys for posting (e.g., one for English posts, and a test key)
 
 ## Step-by-Step Installation (Docker & Docker Compose)
 
@@ -37,11 +37,9 @@ BOT_API_KEY="your_secret_api_key"             # Replace with your API key
 # --- Nostr Private Keys (Required) ---
 # Production Keys (used by cron jobs)
 NOSTR_PRIVATE_KEY_EN="your_english_specific_private_key_hex"
-NOSTR_PRIVATE_KEY_RU="your_russian_specific_private_key_hex"
 
 # Test Keys (used by -test services for manual runs)
 NOSTR_PRIVATE_KEY_ENT="your_english_TEST_private_key_hex"
-NOSTR_PRIVATE_KEY_RUT="your_russian_TEST_private_key_hex"
 
 # --- Optional: Logging Configuration (defaults are set in docker-compose.yml) ---
 # These can be uncommented and set here to override service defaults if needed.
@@ -68,45 +66,35 @@ Alternatively, you can build the image for a specific service (which also builds
 
 ### 4. Verify Setup (Run a Test Bot)
 
-Before setting up cron jobs, test one of the pre-configured test services. These use your test Nostr keys and are set to output logs to the console.
+To ensure your configuration is correct, run the test bot service. This will attempt to fetch events and simulate posting without affecting your production keys.
 
-```bash
 # Test the English bot
+```bash
 docker-compose run --rm nostr-bot-en-test
-
-# Test the Russian bot
-docker-compose run --rm nostr-bot-ru-test
 ```
 
-Check the console output for any errors. The bot should fetch events for the current day for the specified language and attempt to post them.
+### 5. Automated Operation (Cron Job)
 
-## Setting Up for Production (Automated Cron Jobs)
-
-Once you have confirmed the test bots are working, you can set up cron jobs to run the production services (`nostr-bot-en` and `nostr-bot-ru`) automatically.
+Once you have confirmed the test bot is working, you can set up a cron job to run the production service (`nostr-bot-en`) automatically.
 
 Refer to the [Automated Operation section in the Usage Guide](USAGE.md#automated-operation) for detailed instructions on configuring cron jobs with `docker-compose run`.
 
 ## Troubleshooting
 
 - **Connection Errors to API**: Ensure the `BOT_API_ENDPOINT` in your `.env` file is correct and that the API server is running and accessible from where Docker is executing.
-- **Authentication Errors with API**: Verify that `BOT_API_KEY` in your `.env` file is correct.
-- **Nostr Posting Issues**: Double-check that the `NOSTR_PRIVATE_KEY_...` variables in your `.env` file are correct (hex format, no `nsec` prefix) and correspond to the key names used in the `command` section of your `docker-compose.yml` services.
-- **Language Mismatch**: Ensure `BOT_PROCESSING_LANGUAGE` is correctly set in the `environment` section of each service in `docker-compose.yml` (`en` for English services, `ru` for Russian services).
-- **Build Issues**: If `docker-compose build` fails, check the output for errors. Ensure your `Dockerfile` is correct and your Go environment (if any local Go tools are invoked indirectly) is sound.
+- **Authentication Errors**: Double-check your `BOT_API_KEY` and ensure the `NOSTR_PRIVATE_KEY...` variables in your `.env` match the keys expected by the `docker-compose.yml` (`en` for English services).
+- **Configuration Issues**: If the bot fails to start, check the logs for messages about missing environment variables. You can view logs via `docker-compose logs nostr-bot-en`.
+- **Permissions**: Ensure your user has the necessary permissions to run Docker and Docker Compose.
 
-For more general usage information, refer to the [Usage Guide](USAGE.md).
+## Manual Installation (Without Docker)
 
-## Legacy Manual Setup (Deprecated)
+Setting up and running the bot manually without Docker is deprecated due to the complexities of managing environment variables (like `BOT_PROCESSING_LANGUAGE`) per instance. The Docker-based approach is strongly recommended for its simplicity and reliability.
 
-Setting up and running the bot manually without Docker is deprecated due to the complexities of managing environment variables (like `BOT_PROCESSING_LANGUAGE`) per instance. The Docker-based approach is strongly recommended.
+If you must run manually:
 
-If you must proceed with a manual setup:
-
-1.  **Install Go:** Ensure Go 1.18 or higher is installed.
-2.  **Build the application:** `go build -o nostr_bot main.go`
-3.  **Set Environment Variables:** You must manually set `BOT_API_ENDPOINT`, `BOT_API_KEY`, `BOT_PROCESSING_LANGUAGE` (to `en` or `ru`), and the environment variable holding your Nostr private key (e.g., `MY_NOSTR_KEY="actual_hex_key"`) in your shell environment *before* running the bot.
-4.  **Run the bot:** `./nostr_bot MY_NOSTR_KEY` (where `MY_NOSTR_KEY` is the *name* of the environment variable holding the private key).
-
-This manual method lacks the per-service configuration benefits of Docker Compose, making it harder to manage different language instances reliably.
+1.  **Install Go**: Ensure you have Go 1.18+ installed.
+2.  **Build from source**: `go build -o nostr_bot main.go`
+3.  **Set Environment Variables**: You must manually set `BOT_API_ENDPOINT`, `BOT_API_KEY`, `BOT_PROCESSING_LANGUAGE` (to `en`), and the environment variable holding your Nostr private key (e.g., `MY_NOSTR_KEY="actual_hex_key"`) in your shell environment *before* running the bot.
+4.  **Run the bot**: `./nostr_bot MY_NOSTR_KEY` (where `MY_NOSTR_KEY` is the *name* of the environment variable holding the private key).
 
 [![⚡️zapmeacoffee](https://img.shields.io/badge/⚡️zap_-me_a_coffee-violet?style=plastic)](https://zapmeacoffee.com/npub1tcalvjvswjh5rwhr3gywmfjzghthexjpddzvlxre9wxfqz4euqys0309hn)

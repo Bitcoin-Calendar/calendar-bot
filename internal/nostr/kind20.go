@@ -143,7 +143,7 @@ func (k20 *Kind20EventData) ToNostrEvent() (nostr.Event, error) {
 	allTags = append(allTags, nostr.Tag{"m", k20.MediaType})
 
 	// Default tags
-	defaultTags := []string{"bitcoin", "history", "onthisday", "calendar", "bitcoincalendar", "bitcoinhistory"}
+	defaultTags := []string{"bitcoin", "history", "onthisday", "calendar", "bitcoincalendar", "bitcoinhistory", "autopost"}
 	for _, t := range defaultTags {
 		allTags = append(allTags, nostr.Tag{"t", strings.ToLower(t)})
 	}

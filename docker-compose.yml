@@ -9,35 +9,18 @@ services:
       - .env
     volumes:
       - ./logs:/app/logs
-      - ./metrics:/app/metrics
+      - ./metrics-logs:/app/metrics-logs
     restart: 'no'
     environment:
       - BOT_PROCESSING_LANGUAGE=en
-      # These can be set in .env or use defaults here if not in .env
-      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - NOSTR_RELAYS=${NOSTR_RELAYS}
+      - BOT_API_ENDPOINT=${BOT_API_ENDPOINT}
+      - BOT_API_KEY=${BOT_API_KEY}
+      - NOSTR_PRIVATE_KEY_EN=${NOSTR_PRIVATE_KEY_EN}
+      - LOG_DIR=${LOG_DIR:-./logs}
+      - BOT_LOG_LEVEL=${BOT_LOG_LEVEL:-info}
       - CONSOLE_LOG=${CONSOLE_LOG:-false}
       - DEBUG=${DEBUG:-false}
-      # NOSTR_PRIVATE_KEY_EN must be in .env
-
-  nostr-bot-ru:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: nostr-bot-ru
-    command: ["./nostr_bot", "NOSTR_PRIVATE_KEY_RU"]
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs
-      - ./metrics:/app/metrics
-    restart: 'no'
-    environment:
-      - BOT_PROCESSING_LANGUAGE=ru
-      # These can be set in .env or use defaults here if not in .env
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - CONSOLE_LOG=${CONSOLE_LOG:-false}
-      - DEBUG=${DEBUG:-false}
-      # NOSTR_PRIVATE_KEY_RU must be in .env
 
   nostr-bot-en-test:
     build:
@@ -49,30 +32,15 @@ services:
       - .env
     volumes:
       - ./logs:/app/logs
-      - ./metrics:/app/metrics
+      - ./metrics-logs:/app/metrics-logs
     restart: 'no'
     environment:
       - BOT_PROCESSING_LANGUAGE=en
-      - LOG_LEVEL=${LOG_LEVEL:-debug} # Default to debug for tests
-      - CONSOLE_LOG=${CONSOLE_LOG:-true} # Default to console for tests
+      - NOSTR_RELAYS=${NOSTR_RELAYS}
+      - BOT_API_ENDPOINT=${BOT_API_ENDPOINT}
+      - BOT_API_KEY=${BOT_API_KEY}
+      - NOSTR_PRIVATE_KEY_ENT=${NOSTR_PRIVATE_KEY_ENT}
+      - LOG_DIR=${LOG_DIR:-./logs}
+      - BOT_LOG_LEVEL=${BOT_LOG_LEVEL:-debug}
+      - CONSOLE_LOG=${CONSOLE_LOG:-true}
       - DEBUG=${DEBUG:-true}
-      # NOSTR_PRIVATE_KEY_ENT must be in .env
-
-  nostr-bot-ru-test:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: nostr-bot-ru-test
-    command: ["./nostr_bot", "NOSTR_PRIVATE_KEY_RUT"]
-    env_file:
-      - .env
-    volumes:
-      - ./logs:/app/logs # Consider separate logs/metrics for tests if needed
-      - ./metrics:/app/metrics # e.g., ./logs-test:/app/logs
-    restart: 'no'
-    environment:
-      - BOT_PROCESSING_LANGUAGE=ru
-      - LOG_LEVEL=${LOG_LEVEL:-debug} # Default to debug for tests
-      - CONSOLE_LOG=${CONSOLE_LOG:-true} # Default to console for tests
-      - DEBUG=${DEBUG:-true}
-      # NOSTR_PRIVATE_KEY_RUT must be in .env 

@@ -21,12 +21,9 @@ func CreateKind1NostrEvent(apiEvent models.APIEvent, processedTags []string, pro
 	if len(apiEvent.Media) > 0 {
 		finalMessageBuilder.WriteString("\n")
 		for _, mediaURL := range apiEvent.Media {
-			if mediaURL != "" { // Ensure the URL is not empty
-				// Clean up "[\"url\"]" to "url"
-				cleanURL := strings.TrimPrefix(mediaURL, "[\"")
-				cleanURL = strings.TrimSuffix(cleanURL, "\"]")
+			if mediaURL != "" {
 				finalMessageBuilder.WriteString("\n")
-				finalMessageBuilder.WriteString(cleanURL)
+				finalMessageBuilder.WriteString(mediaURL)
 			}
 		}
 	}
@@ -34,17 +31,17 @@ func CreateKind1NostrEvent(apiEvent models.APIEvent, processedTags []string, pro
 	if len(processedReferences) > 0 {
 		finalMessageBuilder.WriteString("\n")
 		for _, ref := range processedReferences {
-			// Remove the "- " prefix from references as it's not desired.
-			cleanRef := strings.TrimPrefix(ref, "- ")
-			finalMessageBuilder.WriteString("\n")
-			finalMessageBuilder.WriteString(cleanRef)
+			if ref != "" {
+				finalMessageBuilder.WriteString("\n")
+				finalMessageBuilder.WriteString(ref)
+			}
 		}
 	}
 	message := finalMessageBuilder.String()
 
 	// Nostr tags
 	// Default tags could be defined elsewhere or passed in if they become configurable.
-	defaultTags := []string{"bitcoin", "history", "onthisday", "calendar", "bitcoincalendar", "bitcoinhistory"}
+	defaultTags := []string{"bitcoin", "history", "onthisday", "calendar", "bitcoincalendar", "bitcoinhistory", "autopost"}
 	allEventTags := nostr.Tags{}
 
 	for _, t := range defaultTags {

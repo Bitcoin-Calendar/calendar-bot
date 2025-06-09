@@ -14,14 +14,14 @@ Key functionalities include:
 *   Fetching events from a configurable API endpoint.
 *   Publishing events as Nostr Kind 1 (text-based) notes.
 *   **NEW**: Publishing events as Nostr NIP-68 Kind 20 (picture-based) notes for events with associated images.
-*   Support for multiple languages (e.g., English, Russian), configurable at runtime.
+*   Support for English, configurable at runtime.
 *   Metrics collection for monitoring event posting success and failures.
 
 The project has recently undergone a significant refactoring to improve modularity and maintainability. Core functionalities such as configuration management, API interaction, logging, metrics collection, and Nostr event publishing have been moved into dedicated packages within an `internal` directory.
 
 ## Quick Start with Docker (Recommended)
 
-This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and Docker Compose to manage the bot instances for different languages.
+This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and Docker Compose to manage the bot.
 
 1.  **Prerequisites**:
     *   Ensure you have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
@@ -46,11 +46,9 @@ This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and 
         # --- Nostr Private Keys (Required) ---
         # Production Keys
         NOSTR_PRIVATE_KEY_EN="your_english_specific_private_key_hex"
-        NOSTR_PRIVATE_KEY_RU="your_russian_specific_private_key_hex"
 
         # Test Keys
         NOSTR_PRIVATE_KEY_ENT="your_english_TEST_private_key_hex"
-        NOSTR_PRIVATE_KEY_RUT="your_russian_TEST_private_key_hex"
         
         # --- Optional: Logging Configuration ---
         # LOG_LEVEL="debug" # Or "info", "warn", "error"
@@ -68,15 +66,14 @@ This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and 
     ```
 
 5.  **Running Test Instances Manually**:
-    To test your setup without posting to your main Nostr accounts, you can run the test services defined in `docker-compose.yml` (e.g., `nostr-bot-en-test`, `nostr-bot-ru-test`). These use specific test keys from your `.env` file and are configured for the respective language. For detailed commands, please see the [Running Test Instances section in our Usage Guide](docs/USAGE.md#running-test-instances).
+    To test your setup without posting to your main Nostr accounts, you can run the test service defined in `docker-compose.yml` (`nostr-bot-en-test`). This uses a specific test key from your `.env` file. For detailed commands, please see the [Running Test Instances section in our Usage Guide](docs/USAGE.md#running-test-instances).
     Example:
     ```bash
     docker-compose run --rm nostr-bot-en-test
-    docker-compose run --rm nostr-bot-ru-test
     ```
 
 6.  **Set up Cron Jobs for Production Bots**:
-    The production bots (`nostr-bot-en`, `nostr-bot-ru`) are designed for scheduled runs using your system's cron. Each service is pre-configured in `docker-compose.yml` to run for a specific language. For detailed instructions on setting up cron jobs with `docker-compose`, please refer to the [Automated Operation section in our Usage Guide](docs/USAGE.md#automated-operation).
+    The production bot (`nostr-bot-en`) is designed for scheduled runs using your system's cron. The service is pre-configured in `docker-compose.yml`. For detailed instructions on setting up cron jobs with `docker-compose`, please refer to the [Automated Operation section in our Usage Guide](docs/USAGE.md#automated-operation).
 
 7.  **Viewing Logs**:
     The bot generates log files for its operations. For test runs, output is also sent to the console by default. Detailed information on log file locations and rotation can be found in the [Log Files section of our Usage Guide](docs/USAGE.md#log-files).
@@ -88,7 +85,7 @@ This is the recommended way to run the Bitcoin Calendar Bot. It uses Docker and 
     docker-compose build
     ```
 
-The `docker-compose.yml` file defines production services (`nostr-bot-en`, `nostr-bot-ru`) for scheduled runs and test services (`nostr-bot-en-test`, `nostr-bot-ru-test`) for manual testing. All services use the same built image but are configured with different environment variables (like `BOT_PROCESSING_LANGUAGE`) and command parameters (for Nostr private key environment variable names) to control their behavior.
+The `docker-compose.yml` file defines a production service (`nostr-bot-en`) for scheduled runs and a test service (`nostr-bot-en-test`) for manual testing. Both services use the same built image but are configured with different environment variables (like `BOT_PROCESSING_LANGUAGE`) and command parameters (for Nostr private key).
 
 The main application logic is now organized within the `internal` directory:
 *   `internal/config`: Handles loading and validation of application configuration from environment variables and a `.env` file.
@@ -106,7 +103,7 @@ The `main.go` file now serves as the entry point, orchestrating these components
 <details>
 <summary>Legacy Manual Setup (Without Docker - Deprecated)</summary>
 
-This method is no longer recommended as the primary way to run the bot due to the API-driven nature and Docker-first approach for managing configurations like `BOT_PROCESSING_LANGUAGE`.
+This method is no longer recommended as the primary way to run the bot due to the API-driven nature and Docker-first approach for managing the configuration.
 
 1. **Clone the repository**
    ```bash
@@ -127,7 +124,7 @@ This method is no longer recommended as the primary way to run the bot due to th
    BOT_API_KEY="your_secret_api_key"
 
    # --- Language for this instance (Required for manual run) ---
-   BOT_PROCESSING_LANGUAGE="en" # or "ru"
+   BOT_PROCESSING_LANGUAGE="en"
 
    # --- Nostr Private Key (Required) ---
    # The bot takes the NAME of the env var holding the key as a command argument.
@@ -155,9 +152,6 @@ Example cron entries (adapt as needed):
 
 # Run English bot instance at 04:00 AM daily
 00 04 * * * cd /path/to/your/calendar-bot && BOT_PROCESSING_LANGUAGE="en" LOG_DIR=./logs ./nostr_bot NOSTR_PRIVATE_KEY_EN
-
-# Run Russian bot instance at 05:00 AM daily
-00 05 * * * cd /path/to/your/calendar-bot && BOT_PROCESSING_LANGUAGE="ru" LOG_DIR=./logs ./nostr_bot NOSTR_PRIVATE_KEY_RU
 ```
 Consider using the Docker setup for cron jobs for easier management of environment variables per language.
 
@@ -182,7 +176,6 @@ Contributions are welcome! Please see our [Contributing Guide](docs/CONTRIBUTING
 
 Support Bitcoin Calendar via [Coinos](https://coinos.io/)
 - Bitcoin Calendar EN ⚡️ `bitcal@coinos.io` 🔗 [Coinos page](https://coinos.io/bitcal)
-- Биткоин календарь RU ⚡️ `bitcalru@coinos.io` 🔗 [Страничка на Coinos](https://coinos.io/bitcalru)
 
 Support Bitcoin Calendar on [Geyser](https://geyser.fund/project/bitcoincalendar)
 

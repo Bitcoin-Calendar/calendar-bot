@@ -38,8 +38,8 @@ func (c *Config) Validate() error {
 	if c.ProcessingLanguage == "" {
 		return fmt.Errorf("ProcessingLanguage is required")
 	}
-	if c.ProcessingLanguage != "en" && c.ProcessingLanguage != "ru" {
-		return fmt.Errorf("Invalid BOT_PROCESSING_LANGUAGE '%s'. Must be 'en' or 'ru'", c.ProcessingLanguage)
+	if c.ProcessingLanguage != "en" {
+		return fmt.Errorf("Invalid BOT_PROCESSING_LANGUAGE '%s'. Must be 'en'", c.ProcessingLanguage)
 	}
 	if len(c.NostrRelays) == 0 {
 		return fmt.Errorf("NostrRelays are required")
