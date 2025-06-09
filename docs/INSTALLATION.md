@@ -1,33 +1,29 @@
-# Installation Guide
+# Bitcoin Calendar Bot Installation Guide
 
 This guide provides detailed instructions for installing and setting up the Bitcoin Calendar Bot using Docker and Docker Compose, which is the recommended method.
 
-## Prerequisites
+## Recommended: Docker Installation
 
-- [Docker](https://docs.docker.com/get-docker/) installed
-- [Docker Compose](https://docs.docker.com/compose/install/) installed
+### 1. Prerequisites
+
+- Ensure you have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
 - Git
-- API Endpoint and Key for the Bitcoin Historical Events API
-- Nostr private keys for posting (e.g., one for English posts, and a test key)
 
-## Step-by-Step Installation (Docker & Docker Compose)
-
-### 1. Clone the Repository
-
+### 2. Clone the Repository
 ```bash
 git clone https://github.com/Bitcoin-Calendar/calendar-bot.git
 cd calendar-bot
 ```
 
-### 2. Configure Environment Variables
+### 3. Configure Environment Variables
 
-Create a `.env` file by copying the example. This file will store your API credentials and Nostr private keys.
+Copy the example `.env` file and customize it with your details.
 
 ```bash
 cp .env-example .env
 ```
 
-Now, edit the `.env` file with your actual credentials:
+Open the `.env` file and add your API configuration and Nostr private keys:
 
 ```env
 # --- API Configuration (Required) ---
@@ -35,60 +31,51 @@ BOT_API_ENDPOINT="http://your_api_vps_ip:port/api" # Replace with your API's bas
 BOT_API_KEY="your_secret_api_key"             # Replace with your API key
 
 # --- Nostr Private Keys (Required) ---
-# Production Keys (used by cron jobs)
+# Used by the production `nostr-bot-en` service
 NOSTR_PRIVATE_KEY_EN="your_english_specific_private_key_hex"
 
-# Test Keys (used by -test services for manual runs)
+# Used by the `nostr-bot-en-test` service for manual runs
 NOSTR_PRIVATE_KEY_ENT="your_english_TEST_private_key_hex"
 
-# --- Optional: Logging Configuration (defaults are set in docker-compose.yml) ---
-# These can be uncommented and set here to override service defaults if needed.
-# LOG_LEVEL="debug"
-# CONSOLE_LOG="true"
-# LOG_DIR="/app/logs" # Path inside the container, usually mapped to a host volume
+# --- Optional: Logging Configuration ---
+# LOG_LEVEL="debug" # Or "info", "warn", "error"
+# CONSOLE_LOG="true"  # Or "false"
 ```
+The `BOT_PROCESSING_LANGUAGE` is set to `en` within the `docker-compose.yml` file and does not need to be set here.
 
-> **Important:** The `.env` file contains sensitive keys. Ensure it is listed in your `.gitignore` file (it should be by default) to prevent accidental commits.
-> The `BOT_PROCESSING_LANGUAGE` is configured per-service within the `docker-compose.yml` and should not be set globally in the `.env` file.
-
-### 3. Build the Docker Image
-
-Build the Docker image which will be used by all services defined in `docker-compose.yml`:
+### 4. Build the Docker Image
+All services defined in `docker-compose.yml` use the same base image, which you must build first.
 
 ```bash
 docker-compose build
 ```
 
-Alternatively, you can build the image for a specific service (which also builds the base image if not present):
-```bash
-# docker-compose build nostr-bot-en
-```
-
-### 4. Verify Setup (Run a Test Bot)
+### 5. Verify Setup (Run a Test Bot)
 
 To ensure your configuration is correct, run the test bot service. This will attempt to fetch events and simulate posting without affecting your production keys.
 
-# Test the English bot
 ```bash
 docker-compose run --rm nostr-bot-en-test
 ```
+Check the console output for any errors. The bot should fetch events for the current day and attempt to post them.
 
-### 5. Automated Operation (Cron Job)
+### 6. Automated Operation (Cron Job)
 
 Once you have confirmed the test bot is working, you can set up a cron job to run the production service (`nostr-bot-en`) automatically.
 
 Refer to the [Automated Operation section in the Usage Guide](USAGE.md#automated-operation) for detailed instructions on configuring cron jobs with `docker-compose run`.
 
-## Troubleshooting
+### 7. Rebuilding After Code Changes
+If you modify the Go source code, you must rebuild the Docker image for the changes to take effect.
+```bash
+docker-compose build
+```
 
-- **Connection Errors to API**: Ensure the `BOT_API_ENDPOINT` in your `.env` file is correct and that the API server is running and accessible from where Docker is executing.
-- **Authentication Errors**: Double-check your `BOT_API_KEY` and ensure the `NOSTR_PRIVATE_KEY...` variables in your `.env` match the keys expected by the `docker-compose.yml` (`en` for English services).
-- **Configuration Issues**: If the bot fails to start, check the logs for messages about missing environment variables. You can view logs via `docker-compose logs nostr-bot-en`.
-- **Permissions**: Ensure your user has the necessary permissions to run Docker and Docker Compose.
+---
 
-## Manual Installation (Without Docker)
+## Manual Installation (Without Docker - Deprecated)
 
-Setting up and running the bot manually without Docker is deprecated due to the complexities of managing environment variables (like `BOT_PROCESSING_LANGUAGE`) per instance. The Docker-based approach is strongly recommended for its simplicity and reliability.
+Setting up and running the bot manually is not recommended. The Docker-based approach is strongly preferred for its simplicity and reliability.
 
 If you must run manually:
 

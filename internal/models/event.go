@@ -5,35 +5,33 @@ import (
 	"time"
 )
 
-// APIEvent struct to match the expected data structure from the API.
-// The Media field will store multiple URLs.
+// APIEvent matches the data structure from the API.
 type APIEvent struct {
 	ID          uint      `json:"ID"`
 	Date        time.Time `json:"Date"`
 	Title       string    `json:"Title"`
 	Description string    `json:"Description"`
-	Tags        string    `json:"Tags"`       // JSON array string from API
-	Media       []string  `json:"Media"`      // Parsed from JSON array string from API
-	References  []string  `json:"References"` // Parsed from JSON array string from API
-	Hashtags    []string  `json:"hashtags"`   // Parsed from Tags by the bot
+	Tags        string    `json:"Tags"`
+	Media       []string  `json:"Media"`
+	References  []string  `json:"References"`
+	Hashtags    []string  `json:"hashtags"`
 	Olas        bool      `json:"olas"`
 }
 
-// Custom unmarshalling logic for APIEvent
-// This is necessary because the 'Media', 'Tags', and 'References' fields
-// come as JSON strings from the API, but we want to use them as structured types.
+// apiEventRaw is an intermediate struct for unmarshalling.
 type apiEventRaw struct {
 	ID          uint      `json:"ID"`
 	Date        time.Time `json:"Date"`
 	Title       string    `json:"Title"`
 	Description string    `json:"Description"`
 	Tags        string    `json:"Tags"`
-	Media       string    `json:"Media"` // Media comes as a string (potentially a JSON array string)
+	Media       string    `json:"Media"`
 	References  string    `json:"References"`
-	// Hashtags are processed later by the bot from Tags, not directly from this initial parse.
-	Olas bool `json:"olas"`
+	Olas        bool      `json:"olas"`
 }
 
+// UnmarshalJSON provides custom unmarshalling logic for APIEvent.
+// It handles 'Media' and 'References' fields that can be either a JSON array string or a plain string.
 func (ae *APIEvent) UnmarshalJSON(data []byte) error {
 	var raw apiEventRaw
 	if err := json.Unmarshal(data, &raw); err != nil {
@@ -44,40 +42,34 @@ func (ae *APIEvent) UnmarshalJSON(data []byte) error {
 	ae.Date = raw.Date
 	ae.Title = raw.Title
 	ae.Description = raw.Description
-	ae.Tags = raw.Tags             // Keep as string, bot parses this into ae.Hashtags
+	ae.Tags = raw.Tags
 	ae.Olas = raw.Olas
 
 	// Unmarshal Media string into []string
 	if raw.Media != "" && raw.Media != "[]" {
 		if err := json.Unmarshal([]byte(raw.Media), &ae.Media); err != nil {
-			// If unmarshalling as an array fails, treat the raw string as a single element.
 			ae.Media = []string{raw.Media}
 		}
 	} else {
-		ae.Media = []string{} // Ensure it's an empty slice, not nil
+		ae.Media = []string{}
 	}
 
 	// Unmarshal References string into []string
 	if raw.References != "" && raw.References != "[]" {
 		if err := json.Unmarshal([]byte(raw.References), &ae.References); err != nil {
-			// If unmarshalling as an array fails, treat the raw string as a single element.
 			ae.References = []string{raw.References}
 		}
 	} else {
-		ae.References = []string{} // Ensure it's an empty slice, not nil
+		ae.References = []string{}
 	}
-
-	// Hashtags are typically derived from Tags string later in the bot's processing logic
-	// So, ae.Hashtags is not populated here from raw.Hashtags (which isn't in apiEventRaw)
 
 	return nil
 }
 
-// APIResponseWrapper represents the full structure of the API response,
-// including the list of events and pagination information.
+// APIResponseWrapper represents the full structure of the API response.
 type APIResponseWrapper struct {
 	Events     []APIEvent  `json:"events"`
-	Pagination interface{} `json:"pagination"` // Using interface{} for now as pagination details aren't used
+	Pagination interface{} `json:"pagination"`
 }
 
 // Constants for event types, if needed elsewhere

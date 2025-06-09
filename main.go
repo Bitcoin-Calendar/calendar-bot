@@ -1,11 +1,8 @@
 package main
 
 import (
-	// "context" // No longer used directly
 	"encoding/json"
 	"fmt"
-	// "io/ioutil" // No longer used directly
-	// "net/http" // No longer used directly
 	"os"
 	"runtime"
 	"strings"
@@ -15,11 +12,8 @@ import (
 	"calendar-bot/internal/config"
 	"calendar-bot/internal/logging"
 	"calendar-bot/internal/metrics"
-	// "calendar-bot/internal/models" // models.APIEvent is used by api, nostr packages
 	"calendar-bot/internal/nostr"
 
-	// "github.com/joho/godotenv" // Now used in logging package
-	// "github.com/rs/zerolog" // zerolog/log is used, but not this directly
 	"github.com/rs/zerolog/log"
 )
 
@@ -43,9 +37,6 @@ func cleanURL(url string) string {
 func getCurrentDirectory() string {
 	dir, err := os.Getwd()
 	if err != nil {
-		// If there's an error, log it and return a placeholder
-		// Using the global logger might not be initialized yet if this is called very early
-		// For now, assume logger is available or this function is called after setup
 		log.Error().Err(err).Msg("Failed to get current working directory")
 		return "unknown_dir"
 	}
@@ -71,26 +62,21 @@ func logEnvironmentVariables() {
 }
 
 func main() {
-	// Expect only <env_var_for_private_key> as a command-line argument
 	if len(os.Args) < 2 {
-		// Before logger is initialized, print to stderr
 		fmt.Fprintln(os.Stderr, "Usage: calendar-bot <env_var_for_private_key>")
 		os.Exit(1)
 	}
 
 	envVarForPrivateKeyName := os.Args[1]
 
-	// Load configuration using the new config package
 	cfg, err := config.LoadConfig(envVarForPrivateKeyName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Configuration error: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Setup Logging using the new logging package
 	logging.Setup(cfg)
 
-	// Now that logger is configured, we can use it.
 	log.Info().Str("language", cfg.ProcessingLanguage).Msg("Bot configured to process events for language.")
 
 	if cfg.Debug {
@@ -109,10 +95,8 @@ func main() {
 	today := time.Now().Format("01-02") // Format is "MM-DD"
 	log.Info().Str("date", today).Msg("Starting bot execution. Fetching events from API.")
 
-	// Initialize MetricsCollector from the new package
 	metricsCollector := metrics.NewCollector()
 	
-	// Extract month and day from today's date string
 	parts := strings.Split(today, "-")
 	var currentMonth, currentDay string
 	if len(parts) == 2 {
@@ -121,31 +105,24 @@ func main() {
 		log.Debug().Str("month", currentMonth).Str("day", currentDay).Msg("Extracted month and day for API query")
 	} else {
 		log.Error().Str("todayFormat", today).Msg("Failed to parse month and day from today's date format. Cannot query API by date.")
-		// Decide if this is fatal or if it should attempt to fetch all events as a fallback
-		// For now, exiting as specific date filtering is the new primary logic.
 		os.Exit(1)
 	}
 
-	// Initialize the API client
 	apiClient := api.NewClient(cfg.APIEndpoint, cfg.APIKey)
 
-	// Initialize the EventPublisher from the nostr package
 	eventPublisher := nostr.NewEventPublisher(cfg.NostrRelays, cfg.PrivateKey, metricsCollector, log.Logger)
-	// Initialize the ImageValidator
 	imageValidator := nostr.NewImageValidator()
 
-	// Fetch events using the API client
-	// The APIEvent type is now models.APIEvent
 	apiEvents, err := apiClient.FetchEvents(currentMonth, currentDay, cfg.ProcessingLanguage)
 	if err != nil {
 		log.Error().Err(err).Msg("Fatal: Failed to fetch events from API. Bot will exit.")
-		metricsCollector.LogSummary() // Use new metricsCollector
-		metricsDir := "metrics-logs" // This is also the package name, maybe rename dir?
+		metricsCollector.LogSummary()
+		metricsDir := "metrics-logs"
 		if mkDirErr := os.MkdirAll(metricsDir, 0755); mkDirErr != nil {
 			log.Error().Err(mkDirErr).Str("directory", metricsDir).Msg("Failed to create metrics directory for error export")
 		}
 		metricsFilePath := fmt.Sprintf("%s/metrics_error_%s.json", metricsDir, time.Now().Format("2006-01-02_15-04-05"))
-		if exportErr := metricsCollector.ExportMetrics(metricsFilePath); exportErr != nil { // Use new metricsCollector
+		if exportErr := metricsCollector.ExportMetrics(metricsFilePath); exportErr != nil {
 			log.Error().Err(exportErr).Str("file", metricsFilePath).Msg("Failed to export metrics during error shutdown")
 		} else {
 			log.Info().Str("file", metricsFilePath).Msg("Metrics exported successfully during error shutdown")
@@ -204,15 +181,11 @@ func main() {
 
 			// --- Publish Kind 20 Event (NIP-68) ---
 			eventSpecificLogger.Info().Msg("Checking eligibility and attempting to publish Kind 20 event.")
-			// The "olas" tag check is part of the feature toggle logic as per spec.
-			// The feature toggle is: "media link (ending with png, jpeg, jpg, webp, avif, gif) in the media column"
-			// This is handled by CreateKind20NostrEvent via ImageValidator.IsValidImageURL.
-			// No explicit "olas" tag check mentioned for this stage in CreateKind20NostrEvent, so proceeding.
 
 			kind20NostrEvent, qualified, errK20Create := nostr.CreateKind20NostrEvent(apiEvent, currentEventAPITags, currentEventAPIReferences, imageValidator)
 			if errK20Create != nil {
 				eventSpecificLogger.Error().Err(errK20Create).Msg("Error creating Kind 20 Nostr event object.")
-				metricsCollector.Kind20EventsFailed++ // Or a new metric like Kind20CreationFailed?
+				metricsCollector.Kind20EventsFailed++
 			} else if qualified {
 				eventSpecificLogger.Info().Msg("Event qualified for Kind 20. Attempting to publish.")
 				successfulK20Publishes, pubErrK20 := eventPublisher.PublishEvent(apiEvent, kind20NostrEvent, "kind20")
@@ -222,10 +195,6 @@ func main() {
 				} else if successfulK20Publishes > 0 {
 					eventSpecificLogger.Info().Int("successfulRelays", successfulK20Publishes).Msg("Kind 20 event successfully published.")
 					metricsCollector.Kind20EventsPosted++
-					// Note: If Kind 1 also succeeded, the wait will happen. If only Kind 20, it will also wait here.
-					// The requirement is "Dual Publishing Workflow: ... Immediately publish kind 20 version (no delay between them)
-					// Maintain 30-minute delay before processing next event"
-					// So, the wait should be after *both* attempts for a single API event.
 				} else {
 					eventSpecificLogger.Warn().Msg("Kind 20 event was processed but failed to publish to any relay.")
 					metricsCollector.Kind20EventsFailed++
@@ -235,10 +204,8 @@ func main() {
 				metricsCollector.Kind20EventsSkipped++
 			}
 
-			// Wait 30 minutes if at least Kind 1 was successfully published.
-			// As per spec: "Dual Publishing Workflow: ... Maintain 30-minute delay before processing next event"
-			// This implies the wait happens after attempting both for the current API event.
-			if kind1PublishedSuccessfully { // Or if any event type for this API event was successful
+			// Wait 30 minutes if at least 1 Kind 1 event was successfully published.
+			if kind1PublishedSuccessfully {
 				log.Info().Msgf("Waiting %v after processing event ID %d before next event...", eventPublisher.DefaultWaitTime(), apiEvent.ID)
 				time.Sleep(eventPublisher.DefaultWaitTime())
 			}
@@ -254,14 +221,14 @@ func main() {
 	}
 
 	log.Info().Msg("Bot execution finished for today.")
-	metricsCollector.LogSummary() // Use new metricsCollector
+	metricsCollector.LogSummary()
 
 	metricsDir := "metrics-logs"
 	if err := os.MkdirAll(metricsDir, 0755); err != nil {
 		log.Error().Err(err).Str("directory", metricsDir).Msg("Failed to create metrics directory for final export")
 	}
 	metricsFilePath := fmt.Sprintf("%s/metrics_run_%s.json", metricsDir, time.Now().Format("2006-01-02_15-04-05"))
-	if err := metricsCollector.ExportMetrics(metricsFilePath); err != nil { // Use new metricsCollector
+	if err := metricsCollector.ExportMetrics(metricsFilePath); err != nil {
 		log.Error().Err(err).Str("file", metricsFilePath).Msg("Failed to export metrics at end of run")
 	} else {
 		log.Info().Str("file", metricsFilePath).Msg("Metrics exported successfully at end of run")

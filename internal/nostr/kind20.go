@@ -207,12 +207,6 @@ func CreateKind20NostrEvent(
 		if validator.IsValidImageURL(mediaURL) {
 			currentMediaType := validator.GetMediaType(mediaURL)
 			if currentMediaType != "" {
-				// Optional: Validate image accessibility. This makes an external HTTP call.
-				// if errAccessibility := validator.ValidateImageAccessibility(mediaURL); errAccessibility != nil {
-				// 	log.Warn().Err(errAccessibility).Uint("apiEventID", apiEvent.ID).Str("mediaURL", mediaURL).Msg("Kind 20: Skipping this media item, not accessible.")
-				// 	continue // Try next media URL
-				// }
-
 				validMediaURL = mediaURL
 				mediaType = currentMediaType
 				log.Info().Uint("apiEventID", apiEvent.ID).Str("selectedMediaURL", validMediaURL).Msg("Kind 20: Selected first valid media URL for event.")

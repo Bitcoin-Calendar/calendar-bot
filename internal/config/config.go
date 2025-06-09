@@ -23,9 +23,7 @@ type Config struct {
 }
 
 // Validate checks the configuration for any errors.
-// Placeholder for now.
 func (c *Config) Validate() error {
-	// TODO: Implement validation logic
 	if c.APIEndpoint == "" {
 		return fmt.Errorf("APIEndpoint is required")
 	}
@@ -44,31 +42,22 @@ func (c *Config) Validate() error {
 	if len(c.NostrRelays) == 0 {
 		return fmt.Errorf("NostrRelays are required")
 	}
-	// Add more validation as needed
 	return nil
 }
 
-// loadConfig loads configuration from environment variables and command-line arguments.
+// LoadConfig loads configuration from environment variables and command-line arguments.
 func LoadConfig(envVarForPrivateKeyName string) (*Config, error) {
 	cfg := &Config{
 		EnvVarForPrivateKey: envVarForPrivateKeyName,
 	}
 
-	// Attempt to load .env file, but don't make it fatal if it doesn't exist
-	// This will be logged later if it fails, after logger is set up.
-	_ = godotenv.Load() // Error is handled by a log message later if logger is set up.
+	// Attempt to load .env file, but don't make it fatal if it doesn't exist.
+	_ = godotenv.Load()
 
 	cfg.APIEndpoint = os.Getenv("BOT_API_ENDPOINT")
-	// No need to check for empty here, Validate() will do it.
-
 	cfg.APIKey = os.Getenv("BOT_API_KEY")
-	// No need to check for empty here, Validate() will do it.
-
 	cfg.PrivateKey = os.Getenv(cfg.EnvVarForPrivateKey)
-	// No need to check for empty here, Validate() will do it.
-
 	cfg.ProcessingLanguage = os.Getenv("BOT_PROCESSING_LANGUAGE")
-	// No need to check for empty or invalid value here, Validate() will do it.
 
 	cfg.LogDir = os.Getenv("BOT_LOG_DIR")
 	if cfg.LogDir == "" {
@@ -89,12 +78,11 @@ func LoadConfig(envVarForPrivateKeyName string) (*Config, error) {
 	if debugEnv == "true" {
 		cfg.Debug = true
 	}
-	
+
 	nostrRelaysEnv := os.Getenv("NOSTR_RELAYS")
 	if nostrRelaysEnv != "" {
-		// Split by comma again
-		cfg.NostrRelays = strings.Split(nostrRelaysEnv, ",") 
-		// Trim whitespace from each relay URL, and filter out empty strings if any result from split
+		cfg.NostrRelays = strings.Split(nostrRelaysEnv, ",")
+		// Trim whitespace from each relay URL, and filter out empty strings.
 		validRelays := make([]string, 0, len(cfg.NostrRelays))
 		for _, relay := range cfg.NostrRelays {
 			trimmedRelay := strings.TrimSpace(relay)
@@ -104,10 +92,7 @@ func LoadConfig(envVarForPrivateKeyName string) (*Config, error) {
 		}
 		cfg.NostrRelays = validRelays
 	}
-	// No need to check for empty here, Validate() will do it.
 
-
-	// Perform validation after loading all values
 	if err := cfg.Validate(); err != nil {
 		return nil, fmt.Errorf("configuration validation failed: %w", err)
 	}
